@@ -1,0 +1,1164 @@
+<!DOCTYPE html><html lang="zh-CN"><head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>岩茶品鉴对比表</title>
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Microsoft YaHei", sans-serif;
+    background: #f5f0eb;
+    color: #3a2e2a;
+    padding: 16px;
+    max-width: 960px;
+    margin: 0 auto;
+  }
+  h1 {
+    text-align: center;
+    font-size: 1.5rem;
+    color: #5c3a21;
+    margin-bottom: 4px;
+  }
+  .subtitle {
+    text-align: center;
+    font-size: 0.85rem;
+    color: #8a7060;
+    margin-bottom: 20px;
+  }
+  .section {
+    background: #fff;
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 16px;
+    box-shadow: 0 2px 8px rgba(92,58,33,0.08);
+  }
+  .section-title {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #5c3a21;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .add-area {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .add-area input[type="text"] {
+    flex: 1;
+    min-width: 120px;
+    padding: 10px 14px;
+    border: 2px solid #d4c4b0;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .add-area input[type="text"]:focus { border-color: #8b5e3c; }
+  .btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+  .btn-primary {
+    background: #8b5e3c;
+    color: #fff;
+  }
+  .btn-primary:hover { background: #6d4a2f; }
+  .btn-danger {
+    background: #e8d5c4;
+    color: #8b5e3c;
+    font-size: 0.8rem;
+    padding: 4px 10px;
+  }
+  .btn-danger:hover { background: #d4b89a; }
+  .tea-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 10px;
+  }
+  .tea-tag {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: #f0e6d9;
+    padding: 4px 12px 4px 4px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: #5c3a21;
+  }
+  .tea-tag img {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    object-fit: cover;
+  }
+  .tea-tag .tag-placeholder {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: #d4c4b0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.7rem;
+    color: #fff;
+  }
+  .tea-cards {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  .carousel-nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+    gap: 8px;
+  }
+  .carousel-btn {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: 2px solid #d4c4b0;
+    background: #fff;
+    color: #8b5e3c;
+    font-size: 1.1rem;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    flex-shrink: 0;
+  }
+  .carousel-btn:hover:not(:disabled) {
+    background: #8b5e3c;
+    color: #fff;
+    border-color: #8b5e3c;
+  }
+  .carousel-btn:disabled {
+    opacity: 0.3;
+    cursor: default;
+  }
+  .carousel-dots {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .carousel-dot {
+    padding: 4px 10px;
+    border-radius: 14px;
+    border: none;
+    background: #e8ddd0;
+    color: #8a7060;
+    font-size: 0.78rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+  .carousel-dot.active {
+    background: #8b5e3c;
+    color: #fff;
+  }
+  .tea-card {
+    background: #faf6f1;
+    border: 2px solid #e8ddd0;
+    border-radius: 10px;
+    padding: 14px;
+  }
+  .tea-card-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #e8ddd0;
+  }
+  .tea-card-photo {
+    position: relative;
+    width: 72px;
+    height: 72px;
+    border-radius: 10px;
+    overflow: visible;
+    flex-shrink: 0;
+    background: #ebe0d3;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    border: 2px dashed #c4b0a0;
+    transition: border-color 0.2s;
+  }
+  .tea-card-photo:hover { border-color: #8b5e3c; }
+  .tea-card-photo > img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 10px;
+  }
+  .tea-card-photo .photo-hint {
+    text-align: center;
+    font-size: 0.7rem;
+    color: #a08a78;
+    line-height: 1.3;
+    padding: 4px;
+  }
+  .tea-card-photo .photo-hint .cam-icon { font-size: 1.3rem; display: block; margin-bottom: 2px; }
+  .tea-card-photo.has-img { border-style: solid; border-color: #d4c4b0; }
+  .tea-card-photo .photo-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,0.45);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.2s;
+    color: #fff;
+    font-size: 0.72rem;
+    font-weight: 600;
+    border-radius: 10px;
+  }
+  .tea-card-photo.has-img:hover .photo-overlay { opacity: 1; }
+  .tea-card-photo .photo-preview {
+    display: none;
+    position: absolute;
+    left: calc(100% + 12px);
+    top: 50%;
+    transform: translateY(-50%);
+    width: 260px;
+    height: 260px;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 8px 30px rgba(92,58,33,0.25);
+    border: 3px solid #fff;
+    z-index: 100;
+    background: #fff;
+  }
+  .tea-card-photo .photo-preview img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .tea-card-photo.has-img:hover .photo-preview { display: block; }
+  .tea-card-info {
+    flex: 1;
+    min-width: 0;
+  }
+  .tea-card-name {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #5c3a21;
+  }
+  .tea-card-score-summary {
+    font-size: 0.82rem;
+    color: #8a7060;
+    margin-top: 2px;
+  }
+  .rating-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 0;
+    border-bottom: 1px solid #f0e6d9;
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+  .rating-row:last-child { border-bottom: none; }
+  .rating-label {
+    font-size: 0.9rem;
+    font-weight: 500;
+    min-width: 80px;
+  }
+  .rating-desc {
+    font-size: 0.72rem;
+    color: #a08a78;
+  }
+  .star-group {
+    display: flex;
+    gap: 4px;
+  }
+  .star {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: 2px solid #d4c4b0;
+    background: #fff;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #c4b0a0;
+    transition: all 0.15s;
+  }
+  .star.active {
+    background: #8b5e3c;
+    border-color: #8b5e3c;
+    color: #fff;
+  }
+  .star:hover {
+    border-color: #8b5e3c;
+    transform: scale(1.1);
+  }
+  .note-input {
+    width: 100%;
+    margin-top: 8px;
+    padding: 8px 12px;
+    border: 1px solid #d4c4b0;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    outline: none;
+    resize: vertical;
+    min-height: 36px;
+    font-family: inherit;
+  }
+  .note-input:focus { border-color: #8b5e3c; }
+  .note-input::placeholder { color: #c4b0a0; }
+
+  .table-wrap {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.85rem;
+    min-width: 500px;
+  }
+  th, td {
+    padding: 10px 8px;
+    text-align: center;
+    border: 1px solid #e0d5c8;
+  }
+  th {
+    background: #8b5e3c;
+    color: #fff;
+    font-weight: 600;
+    position: sticky;
+    top: 0;
+  }
+  th:first-child {
+    text-align: left;
+    min-width: 80px;
+  }
+  td:first-child {
+    text-align: left;
+    font-weight: 600;
+    background: #faf6f1;
+    color: #5c3a21;
+  }
+  tr:nth-child(even) { background: #faf6f1; }
+  tr:hover { background: #f0e6d9; }
+  .score-cell { font-weight: 700; }
+  .best-score {
+    color: #d4380d;
+    font-size: 1rem;
+  }
+  .total-row {
+    background: #f0e6d9 !important;
+    font-weight: 700;
+  }
+  .total-row td { border-top: 2px solid #8b5e3c; }
+  .rank-row td {
+    font-size: 1rem;
+    font-weight: 800;
+  }
+  .th-tea {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+  }
+  .th-tea img {
+    width: 40px;
+    height: 40px;
+    border-radius: 6px;
+    object-fit: cover;
+    border: 2px solid rgba(255,255,255,0.5);
+  }
+
+  .ranking {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 12px;
+  }
+  .rank-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    border-radius: 10px;
+    background: #faf6f1;
+    border: 2px solid #e8ddd0;
+  }
+  .rank-item.gold { border-color: #d4a017; background: #fff9e6; }
+  .rank-item.silver { border-color: #a0a0a0; background: #f8f8f8; }
+  .rank-item.bronze { border-color: #b87333; background: #fdf3ec; }
+  .rank-num {
+    font-size: 1.4rem;
+    font-weight: 800;
+    width: 36px;
+    text-align: center;
+    flex-shrink: 0;
+  }
+  .gold .rank-num { color: #d4a017; }
+  .silver .rank-num { color: #a0a0a0; }
+  .bronze .rank-num { color: #b87333; }
+  .rank-photo {
+    width: 56px;
+    height: 56px;
+    border-radius: 8px;
+    object-fit: cover;
+    flex-shrink: 0;
+    border: 2px solid #e8ddd0;
+  }
+  .rank-info { flex: 1; min-width: 0; }
+  .rank-tea-name { font-weight: 700; font-size: 1rem; color: #3a2e2a; }
+  .rank-tea-score { font-size: 0.85rem; color: #8a7060; }
+  .rank-bar-bg {
+    height: 8px;
+    background: #e8ddd0;
+    border-radius: 4px;
+    margin-top: 4px;
+    overflow: hidden;
+  }
+  .rank-bar {
+    height: 100%;
+    background: linear-gradient(90deg, #8b5e3c, #d4a017);
+    border-radius: 4px;
+    transition: width 0.5s ease;
+  }
+
+  .empty-hint {
+    text-align: center;
+    color: #b0a090;
+    padding: 30px;
+    font-size: 0.9rem;
+  }
+  .tabs {
+    display: flex;
+    gap: 0;
+    margin-bottom: 14px;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 2px solid #8b5e3c;
+  }
+  .tab-btn {
+    flex: 1;
+    padding: 10px;
+    border: none;
+    background: #fff;
+    color: #8b5e3c;
+    font-weight: 600;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .tab-btn.active {
+    background: #8b5e3c;
+    color: #fff;
+  }
+  .tip-box {
+    background: #fff9e6;
+    border-left: 4px solid #d4a017;
+    padding: 10px 14px;
+    border-radius: 0 8px 8px 0;
+    font-size: 0.82rem;
+    color: #6d5a20;
+    margin-bottom: 14px;
+    line-height: 1.6;
+  }
+
+  .recommend-box {
+    text-align: center;
+    margin-top: 16px;
+    padding: 14px;
+    background: #fff9e6;
+    border-radius: 10px;
+    font-size: 0.95rem;
+  }
+  .recommend-box img {
+    width: 64px;
+    height: 64px;
+    border-radius: 10px;
+    object-fit: cover;
+    display: block;
+    margin: 0 auto 8px;
+    border: 3px solid #d4a017;
+  }
+
+  .ai-section {
+    margin-top: 20px;
+    text-align: center;
+  }
+  .ai-btn {
+    padding: 12px 28px;
+    border: none;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    background: linear-gradient(135deg, #8b5e3c, #d4a017);
+    color: #fff;
+    transition: all 0.2s;
+  }
+  .ai-btn:hover { opacity: 0.9; transform: translateY(-1px); }
+  .ai-btn:disabled { opacity: 0.5; cursor: default; transform: none; }
+  .ai-result {
+    margin-top: 14px;
+    text-align: left;
+    display: none;
+  }
+  .ai-card {
+    background: #fff;
+    border-radius: 12px;
+    padding: 18px 20px;
+    margin-bottom: 12px;
+    box-shadow: 0 2px 8px rgba(92,58,33,0.06);
+    border-left: 4px solid #8b5e3c;
+    font-size: 0.88rem;
+    line-height: 1.8;
+    color: #3a2e2a;
+  }
+  .ai-card-title {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #5c3a21;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .ai-card p { margin: 8px 0; }
+  .ai-card p:first-child { margin-top: 0; }
+  .ai-card p:last-child { margin-bottom: 0; }
+  .ai-card ul, .ai-card ol {
+    padding-left: 20px;
+    margin: 8px 0;
+  }
+  .ai-card li { margin: 4px 0; }
+  .ai-card strong, .ai-card b { color: #5c3a21; }
+  .ai-card em { color: #8a7060; }
+  .ai-card blockquote {
+    margin: 10px 0;
+    padding: 8px 14px;
+    background: #faf6f1;
+    border-left: 3px solid #d4c4b0;
+    border-radius: 0 6px 6px 0;
+    color: #6d5a20;
+  }
+  .ai-card table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 10px 0;
+    font-size: 0.84rem;
+  }
+  .ai-card th, .ai-card td {
+    padding: 8px 10px;
+    border: 1px solid #e8ddd0;
+    text-align: left;
+  }
+  .ai-card th {
+    background: #f0e6d9;
+    font-weight: 600;
+    color: #5c3a21;
+  }
+  .ai-card code {
+    background: #f0e6d9;
+    padding: 1px 5px;
+    border-radius: 4px;
+    font-size: 0.84rem;
+  }
+  .ai-card hr {
+    border: none;
+    border-top: 1px solid #e8ddd0;
+    margin: 14px 0;
+  }
+  .ai-cursor {
+    display: inline-block;
+    width: 2px;
+    height: 1em;
+    background: #8b5e3c;
+    margin-left: 2px;
+    vertical-align: text-bottom;
+    animation: blink 0.6s infinite;
+  }
+  @keyframes blink { 0%,100% { opacity: 1; } 50% { opacity: 0; } }
+
+  .modal-mask {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.35);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+  .modal-mask.show { opacity: 1; }
+  .modal-box {
+    background: #fff;
+    border-radius: 14px;
+    padding: 24px;
+    width: 300px;
+    max-width: 88vw;
+    box-shadow: 0 8px 30px rgba(92,58,33,0.18);
+    text-align: center;
+    transform: scale(0.9);
+    transition: transform 0.2s;
+  }
+  .modal-mask.show .modal-box { transform: scale(1); }
+  .modal-icon {
+    font-size: 2.2rem;
+    margin-bottom: 10px;
+  }
+  .modal-title {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #5c3a21;
+    margin-bottom: 6px;
+  }
+  .modal-desc {
+    font-size: 0.85rem;
+    color: #8a7060;
+    margin-bottom: 20px;
+    line-height: 1.5;
+  }
+  .modal-btns {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+  }
+  .modal-btns .btn { min-width: 90px; }
+  .btn-cancel {
+    background: #f0e6d9;
+    color: #5c3a21;
+  }
+  .btn-cancel:hover { background: #e8ddd0; }
+  .btn-del {
+    background: #d4380d;
+    color: #fff;
+  }
+  .btn-del:hover { background: #b02a08; }
+
+  @media (max-width: 480px) {
+    .star { width: 28px; height: 28px; font-size: 0.7rem; }
+    .rating-label { min-width: 70px; font-size: 0.82rem; }
+    h1 { font-size: 1.3rem; }
+    .tea-card-photo { width: 60px; height: 60px; }
+  }
+</style>
+</head>
+<body>
+
+<div style="position:relative;margin-bottom:4px;">
+  <h1>🍵 岩茶品鉴对比</h1>
+  <a href="/admin" style="position:absolute;right:0;top:50%;transform:translateY(-50%);color:#8b5e3c;font-size:0.82rem;text-decoration:none;font-weight:600;background:#f0e6d9;padding:4px 12px;border-radius:14px;">⚙️ 配置管理</a>
+</div>
+<p class="subtitle">逐款打分，找到最适合你的那杯茶</p>
+
+<div class="section">
+  <div class="section-title">📌 冲泡小贴士</div>
+  <div class="tip-box">
+    每款茶用<b>相同条件</b>冲泡才有对比意义：盖碗冲泡，投茶约8g，100°C沸水，前三泡快出（5~10秒），第四泡起可适当延长。每喝完一款茶，喝几口白开水清口后再品下一款。
+  </div>
+</div>
+
+<div class="section">
+  <div class="section-title">➕ 添加茶样</div>
+  <div class="add-area">
+    <input type="text" id="teaNameInput" placeholder="输入茶名，如：肉桂、水仙…" onkeydown="if(event.key==='Enter')addTea()">
+    <button class="btn btn-primary" onclick="addTea()">添加</button>
+  </div>
+  <div class="tea-tags" id="teaTags"></div>
+</div>
+
+<div class="section">
+  <div class="tabs">
+    <button class="tab-btn active" onclick="switchTab('score')">逐款打分</button>
+    <button class="tab-btn" onclick="switchTab('table')">对比表格</button>
+    <button class="tab-btn" onclick="switchTab('rank')">排名结果</button>
+  </div>
+
+  <div id="panelScore">
+    <div id="teaCards" class="tea-cards">
+      <div class="empty-hint">👆 先在上方添加你要品鉴的茶样名称</div>
+    </div>
+  </div>
+
+  <div id="panelTable" style="display:none">
+    <div class="table-wrap" id="tableWrap">
+      <div class="empty-hint">还没有打分数据，请先在「逐款打分」中评分</div>
+    </div>
+  </div>
+
+  <div id="panelRank" style="display:none">
+    <div id="rankWrap">
+      <div class="empty-hint">还没有打分数据，请先在「逐款打分」中评分</div>
+    </div>
+    <div class="ai-section">
+      <button class="ai-btn" id="btnAiAnalyze" onclick="aiAnalyze()">🤖 AI 品鉴分析</button>
+      <div class="ai-result" id="aiResult"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Hidden file input for photo upload -->
+<input type="file" id="photoInput" accept="image/*" capture="environment" style="display:none" onchange="handlePhoto(event)">
+
+<!-- 删除确认弹窗 -->
+<div class="modal-mask" id="deleteModal" style="display:none">
+  <div class="modal-box">
+    <div class="modal-icon">🍃</div>
+    <div class="modal-title">确认删除</div>
+    <div class="modal-desc">确定要删除「<b id="deleteTeaName"></b>」吗？<br>该茶样的评分和图片将一并删除。</div>
+    <div class="modal-btns">
+      <button class="btn btn-cancel" onclick="closeDeleteModal()">取消</button>
+      <button class="btn btn-del" onclick="confirmDelete()">删除</button>
+    </div>
+  </div>
+</div>
+
+<script>
+let DIMENSIONS = [];
+let teas = [];
+let currentPhotoTeaId = null;
+let noteTimers = {};
+let currentCardIndex = 0;
+
+// ── API 工具函数 ─────────────────────────────────────────
+
+async function api(path, opts = {}) {
+  const res = await fetch(path, opts);
+  if (!res.ok && res.status !== 204) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.error || '请求失败');
+  }
+  if (res.status === 204) return null;
+  return res.json();
+}
+
+async function loadTeas() {
+  [DIMENSIONS, teas] = await Promise.all([
+    api('/api/dimensions'),
+    api('/api/teas'),
+  ]);
+  render();
+}
+
+// ── 茶样操作 ─────────────────────────────────────────────
+
+async function addTea() {
+  const input = document.getElementById('teaNameInput');
+  const name = input.value.trim();
+  if (!name) return;
+  try {
+    await api('/api/teas', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name }),
+    });
+    input.value = '';
+    await loadTeas();
+    currentCardIndex = teas.length - 1;
+    render();
+  } catch (e) {
+    showToast(e.message);
+  }
+}
+
+let pendingDeleteId = null;
+
+function removeTea(id) {
+  const tea = teas.find(t => t.id === id);
+  if (!tea) return;
+  pendingDeleteId = id;
+  document.getElementById('deleteTeaName').textContent = tea.name;
+  const modal = document.getElementById('deleteModal');
+  modal.style.display = 'flex';
+  requestAnimationFrame(() => modal.classList.add('show'));
+}
+
+function closeDeleteModal() {
+  const modal = document.getElementById('deleteModal');
+  modal.classList.remove('show');
+  setTimeout(() => modal.style.display = 'none', 200);
+  pendingDeleteId = null;
+}
+
+async function confirmDelete() {
+  if (pendingDeleteId === null) return;
+  const id = pendingDeleteId;
+  closeDeleteModal();
+  await api(`/api/teas/${id}`, { method: 'DELETE' });
+  await loadTeas();
+}
+
+async function setScore(id, key, val) {
+  const tea = teas.find(t => t.id === id);
+  if (!tea) return;
+  const newVal = tea.scores[key] === val ? 0 : val;
+  tea.scores[key] = newVal;
+  render();
+  await api(`/api/teas/${id}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ scores: { [key]: newVal } }),
+  });
+}
+
+function setNote(id, val) {
+  const tea = teas.find(t => t.id === id);
+  if (tea) tea.note = val;
+  clearTimeout(noteTimers[id]);
+  noteTimers[id] = setTimeout(async () => {
+    await api(`/api/teas/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ note: val }),
+    });
+  }, 500);
+}
+
+function getTotal(tea) {
+  return DIMENSIONS.reduce((s, d) => s + (tea.scores[d.key] || 0), 0);
+}
+
+function photoUrl(tea) {
+  return tea.photo ? `/data/photos/${tea.photo}` : '';
+}
+
+// ── 图片上传 ─────────────────────────────────────────────
+
+function triggerPhoto(id) {
+  currentPhotoTeaId = id;
+  const input = document.getElementById('photoInput');
+  input.value = '';
+  input.click();
+}
+
+async function handlePhoto(event) {
+  const file = event.target.files[0];
+  if (!file || !currentPhotoTeaId) return;
+
+  const form = new FormData();
+  form.append('photo', file);
+
+  try {
+    const result = await api(`/api/teas/${currentPhotoTeaId}/photo`, {
+      method: 'POST',
+      body: form,
+    });
+    const tea = teas.find(t => t.id === currentPhotoTeaId);
+    if (tea) tea.photo = result.photo;
+    render();
+  } catch (e) {
+    showToast('图片上传失败');
+  }
+}
+
+// ── Tab 切换 ─────────────────────────────────────────────
+
+function switchTab(tab) {
+  document.querySelectorAll('.tab-btn').forEach((btn, i) => {
+    btn.classList.toggle('active', ['score','table','rank'][i] === tab);
+  });
+  document.getElementById('panelScore').style.display = tab === 'score' ? '' : 'none';
+  document.getElementById('panelTable').style.display = tab === 'table' ? '' : 'none';
+  document.getElementById('panelRank').style.display = tab === 'rank' ? '' : 'none';
+  if (tab === 'table') renderTable();
+  if (tab === 'rank') renderRank();
+}
+
+// ── 轮播 ─────────────────────────────────────────────────
+
+function goToCard(idx) {
+  if (idx < 0 || idx >= teas.length) return;
+  currentCardIndex = idx;
+  render();
+}
+
+// ── 渲染 ─────────────────────────────────────────────────
+
+function render() {
+  const tagsEl = document.getElementById('teaTags');
+  tagsEl.innerHTML = teas.map(t => {
+    const url = photoUrl(t);
+    const imgPart = url
+      ? `<img src="${url}" alt="${t.name}">`
+      : `<span class="tag-placeholder">🍃</span>`;
+    return `<span class="tea-tag">${imgPart} ${t.name} <button class="btn-danger" onclick="removeTea(${t.id})">✕</button></span>`;
+  }).join('');
+
+  const cardsEl = document.getElementById('teaCards');
+  if (teas.length === 0) {
+    currentCardIndex = 0;
+    cardsEl.innerHTML = '<div class="empty-hint">👆 先在上方添加你要品鉴的茶样名称</div>';
+    return;
+  }
+
+  if (currentCardIndex >= teas.length) currentCardIndex = teas.length - 1;
+
+  const t = teas[currentCardIndex];
+
+  const noteEl = document.getElementById('note-' + t.id);
+  const noteVal = noteEl ? noteEl.value : t.note;
+
+  const dots = teas.map((tea, i) =>
+    `<button class="carousel-dot ${i === currentCardIndex ? 'active' : ''}" onclick="goToCard(${i})">${tea.name}</button>`
+  ).join('');
+
+  const nav = `<div class="carousel-nav">
+    <button class="carousel-btn" onclick="goToCard(${currentCardIndex - 1})" ${currentCardIndex === 0 ? 'disabled' : ''}>&#8249;</button>
+    <div class="carousel-dots">${dots}</div>
+    <button class="carousel-btn" onclick="goToCard(${currentCardIndex + 1})" ${currentCardIndex === teas.length - 1 ? 'disabled' : ''}>&#8250;</button>
+  </div>`;
+
+  const rows = DIMENSIONS.map(d => {
+    const stars = [1,2,3,4,5].map(v =>
+      `<div class="star ${t.scores[d.key] >= v ? 'active' : ''}" onclick="setScore(${t.id},'${d.key}',${v})">${v}</div>`
+    ).join('');
+    return `<div class="rating-row">
+      <div>
+        <div class="rating-label">${d.name}</div>
+        <div class="rating-desc">${d.desc}</div>
+      </div>
+      <div class="star-group">${stars}</div>
+    </div>`;
+  }).join('');
+
+  const url = photoUrl(t);
+  const photoPart = url
+    ? `<img src="${url}" alt="${t.name}"><div class="photo-overlay">更换照片</div><div class="photo-preview"><img src="${url}" alt="${t.name}"></div>`
+    : `<div class="photo-hint"><span class="cam-icon">📷</span>拍照/上传</div>`;
+
+  cardsEl.innerHTML = nav + `<div class="tea-card">
+    <div class="tea-card-header">
+      <div class="tea-card-photo ${url ? 'has-img' : ''}" onclick="triggerPhoto(${t.id})">
+        ${photoPart}
+      </div>
+      <div class="tea-card-info">
+        <div class="tea-card-name">🍃 ${t.name}</div>
+        <div class="tea-card-score-summary">总分：${getTotal(t)} / ${DIMENSIONS.length * 5}（${currentCardIndex + 1} / ${teas.length}）</div>
+      </div>
+    </div>
+    ${rows}
+    <textarea class="note-input" id="note-${t.id}" placeholder="备注口感特点，如：花香明显、有奶油感…" oninput="setNote(${t.id}, this.value)">${noteVal}</textarea>
+  </div>`;
+}
+
+function renderTable() {
+  const wrap = document.getElementById('tableWrap');
+  if (teas.length === 0) {
+    wrap.innerHTML = '<div class="empty-hint">还没有茶样，请先添加并打分</div>';
+    return;
+  }
+  const maxScores = {};
+  DIMENSIONS.forEach(d => {
+    maxScores[d.key] = Math.max(...teas.map(t => t.scores[d.key]));
+  });
+  const maxTotal = Math.max(...teas.map(t => getTotal(t)));
+
+  let html = '<table><thead><tr><th>维度</th>';
+  teas.forEach(t => {
+    const url = photoUrl(t);
+    const imgHtml = url ? `<img src="${url}" alt="${t.name}">` : '';
+    html += `<th><div class="th-tea">${imgHtml}<span>${t.name}</span></div></th>`;
+  });
+  html += '</tr></thead><tbody>';
+
+  DIMENSIONS.forEach(d => {
+    html += `<tr><td>${d.name}</td>`;
+    teas.forEach(t => {
+      const v = t.scores[d.key];
+      const isBest = v > 0 && v === maxScores[d.key] && teas.filter(x => x.scores[d.key] === v).length < teas.length;
+      html += `<td class="score-cell ${isBest ? 'best-score' : ''}">${v || '-'}</td>`;
+    });
+    html += '</tr>';
+  });
+
+  html += `<tr class="total-row"><td>总分</td>`;
+  teas.forEach(t => {
+    const tot = getTotal(t);
+    const isBest = tot > 0 && tot === maxTotal && teas.filter(x => getTotal(x) === tot).length < teas.length;
+    html += `<td class="score-cell ${isBest ? 'best-score' : ''}">${tot}</td>`;
+  });
+  html += '</tr>';
+
+  const sorted = [...teas].sort((a, b) => getTotal(b) - getTotal(a));
+  html += `<tr class="rank-row"><td>🏆 排名</td>`;
+  teas.forEach(t => {
+    const rank = sorted.findIndex(s => s.id === t.id) + 1;
+    const emoji = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : '';
+    html += `<td>${emoji} 第${rank}名</td>`;
+  });
+  html += '</tr>';
+
+  html += `<tr><td>备注</td>`;
+  teas.forEach(t => {
+    html += `<td style="font-size:0.78rem;text-align:left;color:#6d5a20;max-width:120px;word-break:break-all;">${t.note || '-'}</td>`;
+  });
+  html += '</tr>';
+
+  html += '</tbody></table>';
+  wrap.innerHTML = html;
+}
+
+function renderRank() {
+  const wrap = document.getElementById('rankWrap');
+  if (teas.length === 0) {
+    wrap.innerHTML = '<div class="empty-hint">还没有茶样，请先添加并打分</div>';
+    return;
+  }
+  const maxPossible = DIMENSIONS.length * 5;
+  const sorted = [...teas].sort((a, b) => getTotal(b) - getTotal(a));
+
+  const classes = ['gold','silver','bronze'];
+  let html = '<div class="ranking">';
+  sorted.forEach((t, i) => {
+    const tot = getTotal(t);
+    const pct = (tot / maxPossible * 100).toFixed(0);
+    const cls = i < 3 ? classes[i] : '';
+    const url = photoUrl(t);
+    const photoHtml = url
+      ? `<img class="rank-photo" src="${url}" alt="${t.name}">`
+      : '';
+    html += `<div class="rank-item ${cls}">
+      <div class="rank-num">${i + 1}</div>
+      ${photoHtml}
+      <div class="rank-info">
+        <div class="rank-tea-name">${t.name}</div>
+        <div class="rank-tea-score">总分 ${tot} / ${maxPossible}（${pct}%）</div>
+        <div class="rank-bar-bg"><div class="rank-bar" style="width:${pct}%"></div></div>
+      </div>
+    </div>`;
+  });
+  html += '</div>';
+
+  if (sorted.length > 0 && getTotal(sorted[0]) > 0) {
+    const winner = sorted[0];
+    const url = photoUrl(winner);
+    const winnerPhoto = url
+      ? `<img src="${url}" alt="${winner.name}">`
+      : '';
+    html += `<div class="recommend-box">
+      ${winnerPhoto}
+      🏆 推荐购买：<b style="color:#d4380d;font-size:1.1rem;">${winner.name}</b>
+    </div>`;
+  }
+
+  wrap.innerHTML = html;
+}
+
+function showToast(msg) {
+  const el = document.createElement('div');
+  el.textContent = msg;
+  Object.assign(el.style, {
+    position:'fixed', top:'20px', left:'50%', transform:'translateX(-50%)',
+    background:'#5c3a21', color:'#fff', padding:'10px 20px', borderRadius:'8px',
+    fontSize:'0.9rem', zIndex:'999', opacity:'0', transition:'opacity 0.3s'
+  });
+  document.body.appendChild(el);
+  requestAnimationFrame(() => el.style.opacity = '1');
+  setTimeout(() => { el.style.opacity = '0'; setTimeout(() => el.remove(), 300); }, 1800);
+}
+
+// ── AI 分析 ──────────────────────────────────────────────
+
+const SECTION_ICONS = { '逐款点评': '🍃', '横向对比': '⚖️', '选购建议': '🛒', '冲泡建议': '☕' };
+
+function renderAiResult(rawMd) {
+  const sections = rawMd.split(/^## /m).filter(Boolean);
+  if (sections.length <= 1) {
+    return '<div class="ai-card">' + marked.parse(rawMd) + '</div>';
+  }
+  return sections.map(sec => {
+    const nlIdx = sec.indexOf('\n');
+    const title = nlIdx > -1 ? sec.substring(0, nlIdx).trim() : sec.trim();
+    const body = nlIdx > -1 ? sec.substring(nlIdx + 1).trim() : '';
+    const icon = Object.entries(SECTION_ICONS).find(([k]) => title.includes(k))?.[1] || '📋';
+    return `<div class="ai-card">
+      <div class="ai-card-title">${icon} ${title}</div>
+      ${marked.parse(body)}
+    </div>`;
+  }).join('');
+}
+
+async function aiAnalyze() {
+  const btn = document.getElementById('btnAiAnalyze');
+  const resultEl = document.getElementById('aiResult');
+  btn.disabled = true;
+  btn.textContent = '🤖 分析中…';
+  resultEl.style.display = 'block';
+  resultEl.innerHTML = '<div class="ai-card"><div class="ai-card-title">🤖 正在分析</div><p>AI 品鉴师正在品味你的茶样数据<span class="ai-cursor"></span></p></div>';
+
+  let fullText = '';
+  try {
+    const res = await fetch('/api/ai/analyze', { method: 'POST' });
+
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.error || '请求失败');
+    }
+
+    const reader = res.body.getReader();
+    const decoder = new TextDecoder();
+    let buffer = '';
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+
+      buffer += decoder.decode(value, { stream: true });
+      const lines = buffer.split('\n');
+      buffer = lines.pop();
+
+      for (const line of lines) {
+        if (!line.startsWith('data: ')) continue;
+        const data = line.slice(6).trim();
+        if (data === '[DONE]') break;
+        try {
+          const parsed = JSON.parse(data);
+          if (parsed.content) {
+            fullText += parsed.content;
+            resultEl.innerHTML = renderAiResult(fullText) + '<span class="ai-cursor"></span>';
+          }
+        } catch {}
+      }
+    }
+
+    resultEl.innerHTML = renderAiResult(fullText);
+  } catch (e) {
+    resultEl.innerHTML = `<div class="ai-card" style="border-left-color:#d4380d;">
+      <div class="ai-card-title" style="color:#d4380d;">⚠️ 分析失败</div>
+      <p style="color:#d4380d;">${e.message}</p>
+    </div>`;
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '🤖 AI 品鉴分析';
+  }
+}
+
+// 页面加载时从后端获取数据
+loadTeas();
+</script>
+
+
+</body></html>

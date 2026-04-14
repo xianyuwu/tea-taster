@@ -1,0 +1,650 @@
+<!DOCTYPE html><html lang="zh-CN"><head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>岩茶品鉴 - 后台管理</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Microsoft YaHei", sans-serif;
+    background: #f5f0eb;
+    color: #3a2e2a;
+    padding: 16px;
+    max-width: 720px;
+    margin: 0 auto;
+  }
+  h1 {
+    text-align: center;
+    font-size: 1.5rem;
+    color: #5c3a21;
+    margin-bottom: 4px;
+  }
+  .subtitle {
+    text-align: center;
+    font-size: 0.85rem;
+    color: #8a7060;
+    margin-bottom: 20px;
+  }
+  .subtitle a {
+    color: #8b5e3c;
+    text-decoration: none;
+    font-weight: 600;
+  }
+  .subtitle a:hover { text-decoration: underline; }
+  .section {
+    background: #fff;
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 16px;
+    box-shadow: 0 2px 8px rgba(92,58,33,0.08);
+  }
+  .section-title {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #5c3a21;
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .form-group {
+    margin-bottom: 14px;
+  }
+  .form-label {
+    display: block;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #5c3a21;
+    margin-bottom: 6px;
+  }
+  .form-hint {
+    font-size: 0.75rem;
+    color: #a08a78;
+    margin-top: 4px;
+  }
+  .form-input {
+    width: 100%;
+    padding: 10px 14px;
+    border: 2px solid #d4c4b0;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    outline: none;
+    transition: border-color 0.2s;
+    font-family: inherit;
+  }
+  .form-input:focus { border-color: #8b5e3c; }
+  .input-row {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+  .input-row .form-input { flex: 1; }
+  .btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+  .btn-primary {
+    background: #8b5e3c;
+    color: #fff;
+  }
+  .btn-primary:hover { background: #6d4a2f; }
+  .btn-primary:disabled {
+    opacity: 0.5;
+    cursor: default;
+  }
+  .btn-secondary {
+    background: #e8ddd0;
+    color: #5c3a21;
+  }
+  .btn-secondary:hover { background: #d4c4b0; }
+  .btn-danger {
+    background: #fff;
+    color: #d4380d;
+    border: 2px solid #f5c4b8;
+  }
+  .btn-danger:hover { background: #fef2f0; border-color: #d4380d; }
+  .btn-sm {
+    padding: 6px 14px;
+    font-size: 0.8rem;
+  }
+  .btn-group {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .status-msg {
+    padding: 10px 14px;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    margin-top: 10px;
+    display: none;
+  }
+  .status-msg.ok {
+    background: #f0f9eb;
+    color: #3a7d0a;
+    border: 1px solid #c8e6a8;
+    display: block;
+  }
+  .status-msg.err {
+    background: #fef2f0;
+    color: #d4380d;
+    border: 1px solid #f5c4b8;
+    display: block;
+  }
+  .backup-list {
+    margin-top: 14px;
+  }
+  .backup-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 12px;
+    background: #faf6f1;
+    border: 1px solid #e8ddd0;
+    border-radius: 8px;
+    margin-bottom: 8px;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .backup-info {
+    font-size: 0.85rem;
+    color: #3a2e2a;
+  }
+  .backup-info .backup-time {
+    font-size: 0.78rem;
+    color: #8a7060;
+  }
+  .backup-info .backup-size {
+    font-size: 0.75rem;
+    color: #a08a78;
+    margin-left: 8px;
+  }
+  .divider {
+    height: 1px;
+    background: #e8ddd0;
+    margin: 16px 0;
+  }
+  .dim-card {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px;
+    background: #faf6f1;
+    border: 1px solid #e8ddd0;
+    border-radius: 8px;
+    margin-bottom: 8px;
+  }
+  .dim-handle {
+    cursor: grab;
+    color: #c4b0a0;
+    font-size: 1.1rem;
+    flex-shrink: 0;
+    user-select: none;
+  }
+  .dim-handle:active { cursor: grabbing; }
+  .dim-fields {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .dim-fields input {
+    padding: 7px 10px;
+    border: 1px solid #d4c4b0;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    outline: none;
+    font-family: inherit;
+  }
+  .dim-fields input:focus { border-color: #8b5e3c; }
+  .dim-key { width: 90px; }
+  .dim-name { width: 80px; }
+  .dim-desc { flex: 1; min-width: 120px; }
+  .dim-actions {
+    display: flex;
+    gap: 4px;
+    flex-shrink: 0;
+  }
+  .dim-actions button {
+    width: 30px;
+    height: 30px;
+    border: 1px solid #d4c4b0;
+    border-radius: 6px;
+    background: #fff;
+    color: #8a7060;
+    cursor: pointer;
+    font-size: 0.85rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s;
+  }
+  .dim-actions button:hover {
+    border-color: #8b5e3c;
+    color: #5c3a21;
+  }
+  .dim-actions button.dim-del:hover {
+    border-color: #d4380d;
+    color: #d4380d;
+  }
+</style>
+</head>
+<body>
+
+<h1>🍵 后台管理</h1>
+<p class="subtitle"><a href="/">← 返回品鉴页面</a></p>
+
+<!-- 大模型配置 -->
+<div class="section">
+  <div class="section-title">🤖 大模型配置</div>
+
+  <div class="form-group">
+    <label class="form-label">API Key</label>
+    <div class="input-row">
+      <input class="form-input" type="password" id="apiKey" placeholder="请输入 API Key">
+      <button class="btn btn-secondary btn-sm" onclick="toggleKeyVisibility()">显示</button>
+    </div>
+    <div class="form-hint" id="keyHint"></div>
+  </div>
+
+  <div class="form-group">
+    <label class="form-label">模型名称</label>
+    <input class="form-input" type="text" id="modelName" placeholder="如：gpt-4o、deepseek-chat、qwen-plus">
+    <div class="form-hint">支持所有兼容 OpenAI 协议的模型</div>
+  </div>
+
+  <div class="form-group">
+    <label class="form-label">API Base URL</label>
+    <input class="form-input" type="text" id="baseUrl" placeholder="https://api.openai.com/v1">
+    <div class="form-hint">使用代理或兼容接口时修改此项</div>
+  </div>
+
+  <div class="btn-group">
+    <button class="btn btn-primary" id="btnSaveConfig" onclick="saveConfig()">保存配置</button>
+    <button class="btn btn-secondary" id="btnTestConfig" onclick="testConfig()">测试连接</button>
+  </div>
+  <div class="status-msg" id="configStatus"></div>
+</div>
+
+<!-- 提示词配置 -->
+<div class="section">
+  <div class="section-title">📝 系统提示词</div>
+  <div class="form-group">
+    <div class="form-hint" style="margin-bottom:8px;">定义 AI 品鉴分析的角色、分析维度和输出格式。留空则使用内置默认提示词。</div>
+    <textarea class="form-input" id="systemPrompt" rows="12" style="resize:vertical;min-height:160px;line-height:1.6;"></textarea>
+  </div>
+  <div class="btn-group">
+    <button class="btn btn-primary" onclick="savePrompt()">保存提示词</button>
+    <button class="btn btn-secondary" onclick="resetPrompt()">恢复默认</button>
+  </div>
+  <div class="status-msg" id="promptStatus"></div>
+</div>
+
+<!-- 数据管理 -->
+<div class="section">
+  <div class="section-title">💾 数据管理</div>
+
+  <div class="btn-group">
+    <button class="btn btn-primary" onclick="createBackup()">导出备份</button>
+    <label class="btn btn-secondary" style="cursor:pointer;">
+      导入恢复
+      <input type="file" accept=".zip" style="display:none" onchange="restoreBackup(event)">
+    </label>
+  </div>
+  <div class="status-msg" id="dataStatus"></div>
+
+  <div class="backup-list" id="backupList"></div>
+
+  <div class="divider"></div>
+
+  <button class="btn btn-danger" onclick="clearAllData()">清空所有数据</button>
+</div>
+
+<!-- 评分维度配置 -->
+<div class="section">
+  <div class="section-title">📊 评分维度配置</div>
+  <div class="form-hint" style="margin-bottom:12px;">配置品鉴打分的评分项，可自由增删和排序。修改后已有茶样的新维度默认 0 分。</div>
+  <div id="dimList"></div>
+  <div style="margin-top:12px;" class="btn-group">
+    <button class="btn btn-primary" onclick="saveDimensions()">保存维度</button>
+    <button class="btn btn-secondary" onclick="addDimension()">+ 添加维度</button>
+    <button class="btn btn-secondary" onclick="resetDimensions()">恢复默认</button>
+  </div>
+  <div class="status-msg" id="dimStatus"></div>
+</div>
+
+<script>
+// ── API 工具 ─────────────────────────────────────────────
+
+async function api(path, opts = {}) {
+  const res = await fetch(path, opts);
+  if (!res.ok && res.status !== 204) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.error || '请求失败');
+  }
+  if (res.status === 204) return null;
+  return res.json();
+}
+
+function showStatus(elId, ok, msg) {
+  const el = document.getElementById(elId);
+  el.className = 'status-msg ' + (ok ? 'ok' : 'err');
+  el.textContent = msg;
+  if (ok) setTimeout(() => el.style.display = 'none', 3000);
+}
+
+// ── 配置 ─────────────────────────────────────────────────
+
+let keyModified = false;
+
+const DEFAULT_PROMPT = `你是一位资深的武夷岩茶品鉴师，拥有丰富的岩茶评审和品饮经验。
+请根据用户提供的岩茶评分数据，给出专业的品鉴分析。
+
+请从以下四个方面进行分析，用 Markdown 格式输出：
+
+## 逐款点评
+对每款茶进行简要点评，突出其特点和风格。
+
+## 横向对比
+分析各款茶之间的差异，指出各自的优势和不足。
+
+## 选购建议
+根据评分数据分析用户的口味偏好，给出选购推荐。
+
+## 冲泡建议
+针对评分较低的维度，分析可能的原因（茶叶本身 or 冲泡方式），给出改善建议。
+
+语言风格：专业但亲切，避免过于学术化。`;
+
+async function loadConfig() {
+  const cfg = await api('/api/config');
+  const keyInfo = cfg.openai_api_key_masked && cfg.openai_api_key_masked !== '***'
+    ? '当前已配置：' + cfg.openai_api_key_masked + (cfg.openai_key_source ? '（来源：' + cfg.openai_key_source + '）' : '')
+    : '尚未配置。推荐在项目根目录创建 .env 文件写入 OPENAI_API_KEY=你的key';
+  document.getElementById('keyHint').textContent = keyInfo;
+  document.getElementById('modelName').value = cfg.openai_model || '';
+  document.getElementById('baseUrl').value = cfg.openai_base_url || '';
+  document.getElementById('systemPrompt').value = cfg.system_prompt || DEFAULT_PROMPT;
+  document.getElementById('apiKey').value = '';
+  keyModified = false;
+}
+
+document.getElementById('apiKey').addEventListener('input', () => { keyModified = true; });
+
+function toggleKeyVisibility() {
+  const el = document.getElementById('apiKey');
+  const btn = el.nextElementSibling;
+  if (el.type === 'password') {
+    el.type = 'text';
+    btn.textContent = '隐藏';
+  } else {
+    el.type = 'password';
+    btn.textContent = '显示';
+  }
+}
+
+async function saveConfig() {
+  const body = {
+    openai_model: document.getElementById('modelName').value.trim(),
+    openai_base_url: document.getElementById('baseUrl').value.trim(),
+  };
+  if (keyModified) {
+    const key = document.getElementById('apiKey').value.trim();
+    if (key) body.openai_api_key = key;
+  }
+  try {
+    await api('/api/config', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    });
+    showStatus('configStatus', true, '配置已保存');
+    await loadConfig();
+  } catch (e) {
+    showStatus('configStatus', false, e.message);
+  }
+}
+
+async function testConfig() {
+  const btn = document.getElementById('btnTestConfig');
+  btn.disabled = true;
+  btn.textContent = '测试中…';
+
+  const body = {
+    openai_model: document.getElementById('modelName').value.trim(),
+    openai_base_url: document.getElementById('baseUrl').value.trim(),
+  };
+  const key = document.getElementById('apiKey').value.trim();
+  if (key) body.openai_api_key = key;
+
+  try {
+    const res = await api('/api/config/test', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    });
+    showStatus('configStatus', true, res.message || '连接成功');
+  } catch (e) {
+    showStatus('configStatus', false, '连接失败：' + e.message);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '测试连接';
+  }
+}
+
+// ── 备份恢复 ─────────────────────────────────────────────
+
+async function loadBackups() {
+  const list = await api('/api/backups');
+  const el = document.getElementById('backupList');
+  if (list.length === 0) {
+    el.innerHTML = '<div style="color:#a08a78;font-size:0.85rem;padding:8px 0;">暂无备份记录</div>';
+    return;
+  }
+  el.innerHTML = list.map(b => {
+    const sizeKB = (b.size / 1024).toFixed(1);
+    return `<div class="backup-item">
+      <div class="backup-info">
+        📦 ${b.filename}
+        <span class="backup-time">${b.time}</span>
+        <span class="backup-size">${sizeKB} KB</span>
+      </div>
+      <div class="btn-group">
+        <a class="btn btn-secondary btn-sm" href="/api/backups/${b.filename}" download>下载</a>
+        <button class="btn btn-danger btn-sm" onclick="deleteBackup('${b.filename}')">删除</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+async function createBackup() {
+  try {
+    await api('/api/backup', { method: 'POST' });
+    showStatus('dataStatus', true, '备份创建成功（注意：备份不含 API Key，Key 存储在 .env 文件中）');
+    await loadBackups();
+  } catch (e) {
+    showStatus('dataStatus', false, e.message);
+  }
+}
+
+async function restoreBackup(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  if (!confirm(`确定要从 "${file.name}" 恢复数据吗？\n当前数据将被覆盖！`)) {
+    event.target.value = '';
+    return;
+  }
+  const form = new FormData();
+  form.append('file', file);
+  try {
+    await api('/api/restore', { method: 'POST', body: form });
+    showStatus('dataStatus', true, '数据恢复成功（提醒：API Key 需单独配置，请检查 .env 文件）');
+  } catch (e) {
+    showStatus('dataStatus', false, e.message);
+  }
+  event.target.value = '';
+}
+
+async function deleteBackup(filename) {
+  if (!confirm(`确定删除备份 ${filename}？`)) return;
+  await api(`/api/backups/${filename}`, { method: 'DELETE' });
+  await loadBackups();
+}
+
+async function clearAllData() {
+  if (!confirm('确定清空所有茶样数据和图片吗？此操作不可恢复！\n建议先导出备份。')) return;
+  if (!confirm('再次确认：真的要清空所有数据吗？')) return;
+  try {
+    await api('/api/data', { method: 'DELETE' });
+    showStatus('dataStatus', true, '数据已清空');
+  } catch (e) {
+    showStatus('dataStatus', false, e.message);
+  }
+}
+
+// ── 初始化 ───────────────────────────────────────────────
+
+// ── 提示词 ───────────────────────────────────────────────
+
+async function savePrompt() {
+  const val = document.getElementById('systemPrompt').value;
+  try {
+    await api('/api/config', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ system_prompt: val }),
+    });
+    showStatus('promptStatus', true, '提示词已保存');
+  } catch (e) {
+    showStatus('promptStatus', false, e.message);
+  }
+}
+
+function resetPrompt() {
+  document.getElementById('systemPrompt').value = DEFAULT_PROMPT;
+  showStatus('promptStatus', true, '已恢复为默认提示词，点击「保存提示词」生效');
+}
+
+// ── 评分维度 ─────────────────────────────────────────────
+
+const DEFAULT_DIMS = [
+  {key:'aroma', name:'香气', desc:'闻起来是否好闻、浓郁、有层次'},
+  {key:'color', name:'汤色', desc:'茶汤颜色是否透亮好看'},
+  {key:'body', name:'醇厚度', desc:'茶汤是否有"内容"、饱满不寡淡'},
+  {key:'smooth', name:'顺滑度', desc:'入口是否丝滑细腻不粗糙'},
+  {key:'sweet', name:'回甘', desc:'咽下后嘴里是否有甜感回上来'},
+  {key:'bitter', name:'不苦涩', desc:'苦涩感越少得分越高'},
+  {key:'overall', name:'整体愉悦', desc:'综合感受，想不想再来一杯'},
+];
+
+let dims = [];
+let dragIdx = null;
+
+async function loadDimensions() {
+  dims = await api('/api/dimensions');
+  renderDims();
+}
+
+function renderDims() {
+  const el = document.getElementById('dimList');
+  if (dims.length === 0) {
+    el.innerHTML = '<div style="color:#a08a78;font-size:0.85rem;padding:8px 0;">暂无维度，请添加或恢复默认</div>';
+    return;
+  }
+  el.innerHTML = dims.map((d, i) => `<div class="dim-card" draggable="true" data-idx="${i}">
+    <span class="dim-handle" title="拖拽排序">☰</span>
+    <div class="dim-fields">
+      <input class="dim-key" value="${d.key}" placeholder="key" title="唯一标识（英文）" onchange="dims[${i}].key=this.value">
+      <input class="dim-name" value="${d.name}" placeholder="名称" title="显示名称" onchange="dims[${i}].name=this.value">
+      <input class="dim-desc" value="${d.desc||''}" placeholder="描述说明" title="评分提示" onchange="dims[${i}].desc=this.value">
+    </div>
+    <div class="dim-actions">
+      <button title="上移" onclick="moveDim(${i},-1)" ${i===0?'disabled':''}>↑</button>
+      <button title="下移" onclick="moveDim(${i},1)" ${i===dims.length-1?'disabled':''}>↓</button>
+      <button class="dim-del" title="删除" onclick="removeDim(${i})">✕</button>
+    </div>
+  </div>`).join('');
+
+  // 拖拽排序
+  el.querySelectorAll('.dim-card').forEach(card => {
+    card.addEventListener('dragstart', e => {
+      dragIdx = +card.dataset.idx;
+      card.style.opacity = '0.5';
+    });
+    card.addEventListener('dragend', () => {
+      card.style.opacity = '1';
+      dragIdx = null;
+    });
+    card.addEventListener('dragover', e => e.preventDefault());
+    card.addEventListener('drop', e => {
+      e.preventDefault();
+      const toIdx = +card.dataset.idx;
+      if (dragIdx !== null && dragIdx !== toIdx) {
+        const item = dims.splice(dragIdx, 1)[0];
+        dims.splice(toIdx, 0, item);
+        renderDims();
+      }
+    });
+  });
+}
+
+function moveDim(i, dir) {
+  const j = i + dir;
+  if (j < 0 || j >= dims.length) return;
+  [dims[i], dims[j]] = [dims[j], dims[i]];
+  renderDims();
+}
+
+function removeDim(i) {
+  dims.splice(i, 1);
+  renderDims();
+}
+
+function addDimension() {
+  const n = dims.length + 1;
+  dims.push({ key: `dim_${n}`, name: `维度${n}`, desc: '' });
+  renderDims();
+  // 滚到底部
+  const el = document.getElementById('dimList');
+  el.lastElementChild?.scrollIntoView({ behavior: 'smooth' });
+}
+
+async function saveDimensions() {
+  // 校验
+  const keys = dims.map(d => d.key.trim());
+  if (keys.some(k => !k)) { showStatus('dimStatus', false, '维度 key 不能为空'); return; }
+  if (new Set(keys).size !== keys.length) { showStatus('dimStatus', false, '维度 key 不能重复'); return; }
+  if (dims.some(d => !d.name.trim())) { showStatus('dimStatus', false, '维度名称不能为空'); return; }
+
+  try {
+    await api('/api/dimensions', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ dimensions: dims }),
+    });
+    showStatus('dimStatus', true, '评分维度已保存');
+  } catch (e) {
+    showStatus('dimStatus', false, e.message);
+  }
+}
+
+function resetDimensions() {
+  dims = JSON.parse(JSON.stringify(DEFAULT_DIMS));
+  renderDims();
+  showStatus('dimStatus', true, '已恢复为默认维度，点击「保存维度」生效');
+}
+
+// ── 初始化 ───────────────────────────────────────────────
+
+loadConfig();
+loadBackups();
+loadDimensions();
+</script>
+
+</body></html>
