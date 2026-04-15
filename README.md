@@ -37,7 +37,7 @@
 1. 克隆仓库
 
 ```bash
-git clone https://gitlab.rainwu.cn/rainwu/tea-taster.git
+git clone https://github.com/xianyuwu/tea-taster.git
 cd tea-taster
 ```
 
@@ -57,7 +57,7 @@ cd tea-taster
 
 ```bash
 # 1. 克隆并进入项目目录
-git clone https://gitlab.rainwu.cn/rainwu/tea-taster.git
+git clone https://github.com/xianyuwu/tea-taster.git
 cd tea-taster
 
 # 2. 创建虚拟环境
@@ -124,6 +124,10 @@ OPENAI_API_KEY=sk-xxxxxxxxxxxxxxxx
 - 对话窗口左侧可拖拽调整宽度
 - 流式输出，打字机效果
 - 清空对话不影响品鉴分析报告
+
+## 🏗️ 系统架构
+
+![系统架构](screenshots/architecture.png)
 
 ## 📁 项目结构
 
