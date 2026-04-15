@@ -270,7 +270,7 @@ def update_config():
     body = request.get_json()
     cfg = load_config()
 
-    # API Key 写入 .env 文件，不再存 config.json
+    # API Key 写入 .env 文件并更新内存环境变量，立即生效
     if "openai_api_key" in body and body["openai_api_key"]:
         env_file = BASE_DIR / ".env"
         lines = []
@@ -278,6 +278,8 @@ def update_config():
             lines = [l for l in env_file.read_text().splitlines() if not l.strip().startswith("OPENAI_API_KEY=")]
         lines.append(f"OPENAI_API_KEY={body['openai_api_key']}")
         env_file.write_text("\n".join(lines) + "\n")
+        # 立即更新内存中的环境变量，无需重启即可生效
+        os.environ["OPENAI_API_KEY"] = body["openai_api_key"]
         # 清除 config.json 中的旧 key
         cfg.pop("openai_api_key", None)
 
@@ -495,6 +497,45 @@ def ai_analyze():
         return Response(stream_with_context(generate()), mimetype="text/event-stream")
     except Exception as e:
         return jsonify({"error": f"AI 分析失败：{str(e)}"}), 500
+
+
+@app.route("/api/ai/chat", methods=["POST"])
+def ai_chat():
+    """AI 追问对话接口，接收完整消息历史"""
+    body = request.get_json()
+    messages = body.get("messages", [])
+
+    if not messages:
+        return jsonify({"error": "消息不能为空"}), 400
+
+    api_key = get_api_key()
+    if not api_key:
+        return jsonify({"error": "未配置 API Key"}), 400
+
+    cfg = load_config()
+
+    try:
+        from openai import OpenAI
+        client = OpenAI(
+            api_key=api_key,
+            base_url=cfg.get("openai_base_url", "https://api.openai.com/v1"),
+        )
+
+        def generate():
+            stream = client.chat.completions.create(
+                model=cfg.get("openai_model", "gpt-4o"),
+                messages=messages,
+                stream=True,
+            )
+            for chunk in stream:
+                delta = chunk.choices[0].delta if chunk.choices else None
+                if delta and delta.content:
+                    yield f"data: {json.dumps({'content': delta.content}, ensure_ascii=False)}\n\n"
+            yield "data: [DONE]\n\n"
+
+        return Response(stream_with_context(generate()), mimetype="text/event-stream")
+    except Exception as e:
+        return jsonify({"error": f"AI 对话失败：{str(e)}"}), 500
 
 
 # ── 启动 ──────────────────────────────────────────────────

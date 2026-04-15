@@ -332,11 +332,24 @@ async function api(path, opts = {}) {
   return res.json();
 }
 
+let statusTimers = {};
+
 function showStatus(elId, ok, msg) {
   const el = document.getElementById(elId);
   el.className = 'status-msg ' + (ok ? 'ok' : 'err');
   el.textContent = msg;
-  if (ok) setTimeout(() => el.style.display = 'none', 3000);
+  el.style.display = 'block';
+  // 清除之前的定时器，防止新消息被意外隐藏
+  if (statusTimers[elId]) {
+    clearTimeout(statusTimers[elId]);
+    statusTimers[elId] = null;
+  }
+  if (ok) {
+    statusTimers[elId] = setTimeout(() => {
+      el.style.display = 'none';
+      statusTimers[elId] = null;
+    }, 3000);
+  }
 }
 
 // ── 配置 ─────────────────────────────────────────────────
@@ -413,17 +426,18 @@ async function saveConfig() {
 
 async function testConfig() {
   const btn = document.getElementById('btnTestConfig');
-  btn.disabled = true;
-  btn.textContent = '测试中…';
-
-  const body = {
-    openai_model: document.getElementById('modelName').value.trim(),
-    openai_base_url: document.getElementById('baseUrl').value.trim(),
-  };
-  const key = document.getElementById('apiKey').value.trim();
-  if (key) body.openai_api_key = key;
-
+  const originalText = btn.textContent;
   try {
+    btn.disabled = true;
+    btn.textContent = '测试中…';
+
+    const body = {
+      openai_model: document.getElementById('modelName').value.trim(),
+      openai_base_url: document.getElementById('baseUrl').value.trim(),
+    };
+    const key = document.getElementById('apiKey').value.trim();
+    if (key) body.openai_api_key = key;
+
     const res = await api('/api/config/test', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -434,7 +448,7 @@ async function testConfig() {
     showStatus('configStatus', false, '连接失败：' + e.message);
   } finally {
     btn.disabled = false;
-    btn.textContent = '测试连接';
+    btn.textContent = originalText;
   }
 }
 
