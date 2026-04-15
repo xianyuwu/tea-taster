@@ -21,6 +21,10 @@
 
 ![品鉴页面](screenshots/index.png)
 
+![管理后台](screenshots/ai-bot.png)
+
+![管理后台](screenshots/ai-report.png)
+
 **管理后台**（`/admin`）— 大模型配置、提示词编辑、数据管理、评分维度配置
 
 ![管理后台](screenshots/admin.png)
