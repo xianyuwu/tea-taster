@@ -58,7 +58,7 @@ def load_data():
     if TEAS_FILE.exists():
         with open(TEAS_FILE, "r", encoding="utf-8") as f:
             return json.load(f)
-    return {"nextId": 0, "teas": []}
+    return {"nextId": 0, "teas": [], "report": None}
 
 
 def save_data(data):
@@ -71,6 +71,12 @@ def find_tea(data, tea_id):
         if tea["id"] == tea_id:
             return tea
     return None
+
+
+def mark_report_stale(data):
+    """标记报告为过期"""
+    if data.get("report"):
+        data["report"]["stale"] = True
 
 
 def load_config():
@@ -154,6 +160,7 @@ def add_tea():
         "photo": "",
     }
     data["teas"].append(tea)
+    mark_report_stale(data)
     save_data(data)
     return jsonify(tea), 201
 
@@ -168,6 +175,7 @@ def update_tea(tea_id):
 
     if "scores" in body:
         tea["scores"].update(body["scores"])
+        mark_report_stale(data)
     if "note" in body:
         tea["note"] = body["note"]
 
@@ -188,6 +196,7 @@ def delete_tea(tea_id):
             photo_path.unlink()
 
     data["teas"] = [t for t in data["teas"] if t["id"] != tea_id]
+    mark_report_stale(data)
     save_data(data)
     return "", 204
 
@@ -431,11 +440,27 @@ def restore_backup():
 
 @app.route("/api/data", methods=["DELETE"])
 def clear_data():
-    save_data({"nextId": 0, "teas": []})
+    save_data({"nextId": 0, "teas": [], "report": None})
     if PHOTO_DIR.exists():
         shutil.rmtree(PHOTO_DIR)
     PHOTO_DIR.mkdir(exist_ok=True)
     return jsonify({"message": "数据已清空"})
+
+
+# ── 报告 API ──────────────────────────────────────────────
+
+@app.route("/api/report", methods=["GET"])
+def get_report():
+    data = load_data()
+    return jsonify(data.get("report"))
+
+
+@app.route("/api/report", methods=["DELETE"])
+def delete_report():
+    data = load_data()
+    data["report"] = None
+    save_data(data)
+    return "", 204
 
 
 # ── AI 分析 API ───────────────────────────────────────────
@@ -479,6 +504,9 @@ def ai_analyze():
             base_url=cfg.get("openai_base_url", "https://api.openai.com/v1"),
         )
 
+        # 收集完整文本用于持久化
+        full_text_holder = [""]
+
         def generate():
             stream = client.chat.completions.create(
                 model=cfg.get("openai_model", "gpt-4o"),
@@ -491,8 +519,18 @@ def ai_analyze():
             for chunk in stream:
                 delta = chunk.choices[0].delta if chunk.choices else None
                 if delta and delta.content:
+                    full_text_holder[0] += delta.content
                     yield f"data: {json.dumps({'content': delta.content}, ensure_ascii=False)}\n\n"
             yield "data: [DONE]\n\n"
+
+            # 流式完成后保存报告
+            data = load_data()
+            data["report"] = {
+                "content": full_text_holder[0],
+                "created_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                "stale": False,
+            }
+            save_data(data)
 
         return Response(stream_with_context(generate()), mimetype="text/event-stream")
     except Exception as e:

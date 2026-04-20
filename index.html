@@ -525,81 +525,272 @@
     text-align: left;
     display: none;
   }
-  .ai-card {
+  .ai-result {
+    margin-top: 14px;
+    text-align: left;
+    display: none;
+  }
+
+  /* 报告头部 */
+  .ai-report-header {
+    background: linear-gradient(135deg, #5c3a21 0%, #8b5e3c 60%, #d4a017 100%);
+    border-radius: 12px;
+    padding: 20px 22px;
+    margin-bottom: 16px;
+    color: #fff;
+    position: relative;
+    overflow: hidden;
+  }
+  .ai-report-header::after {
+    content: '🍵';
+    position: absolute;
+    right: 16px;
+    bottom: -8px;
+    font-size: 4rem;
+    opacity: 0.15;
+  }
+  .ai-report-header h3 {
+    font-size: 1.15rem;
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+  .ai-report-meta {
+    font-size: 0.82rem;
+    opacity: 0.85;
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+  .ai-report-meta span {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  /* 评分速览 */
+  .ai-score-overview {
     background: #fff;
     border-radius: 12px;
-    padding: 18px 20px;
-    margin-bottom: 12px;
+    padding: 16px 20px;
+    margin-bottom: 14px;
     box-shadow: 0 2px 8px rgba(92,58,33,0.06);
-    border-left: 4px solid #8b5e3c;
-    font-size: 0.88rem;
-    line-height: 1.8;
-    color: #3a2e2a;
   }
-  .ai-card-title {
-    font-size: 1rem;
+  .ai-score-overview-title {
+    font-size: 0.9rem;
     font-weight: 700;
     color: #5c3a21;
-    margin-bottom: 10px;
+    margin-bottom: 12px;
     display: flex;
     align-items: center;
     gap: 6px;
   }
-  .ai-card p { margin: 8px 0; }
-  .ai-card p:first-child { margin-top: 0; }
-  .ai-card p:last-child { margin-bottom: 0; }
-  .ai-card ul, .ai-card ol {
-    padding-left: 20px;
+  .ai-score-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 0;
+    border-bottom: 1px solid #f0e6d9;
+  }
+  .ai-score-item:last-child { border-bottom: none; }
+  .ai-score-item-name {
+    font-weight: 600;
+    font-size: 0.88rem;
+    color: #5c3a21;
+    min-width: 80px;
+  }
+  .ai-score-item-bars {
+    flex: 1;
+    display: flex;
+    gap: 3px;
+    align-items: center;
+  }
+  .ai-score-dim-bar {
+    height: 18px;
+    border-radius: 4px;
+    background: #e8ddd0;
+    position: relative;
+    min-width: 24px;
+    flex: 1;
+    overflow: hidden;
+  }
+  .ai-score-dim-fill {
+    height: 100%;
+    border-radius: 4px;
+    background: linear-gradient(180deg, #8b5e3c, #a06d40);
+    transition: width 0.5s ease;
+  }
+  .ai-score-dim-label {
+    font-size: 0.68rem;
+    color: #a08a78;
+    text-align: center;
+    margin-top: 2px;
+  }
+  .ai-score-item-total {
+    font-weight: 700;
+    font-size: 0.9rem;
+    color: #5c3a21;
+    min-width: 50px;
+    text-align: right;
+  }
+
+  /* 报告过期提示 */
+  .ai-report-stale-hint {
+    background: #fff3e0;
+    border: 1px solid #f5c06e;
+    border-radius: 8px;
+    padding: 10px 14px;
+    margin-bottom: 14px;
+    font-size: 0.85rem;
+    color: #8a5d1a;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .ai-report-stale-hint button {
+    margin-left: auto;
+    padding: 4px 12px;
+    border: 1px solid #d4a017;
+    border-radius: 6px;
+    background: #fff;
+    color: #8a5d1a;
+    font-size: 0.82rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .ai-report-stale-hint button:hover {
+    background: #8b5e3c;
+    color: #fff;
+    border-color: #8b5e3c;
+  }
+
+  .ai-card {
+    background: #fff;
+    border-radius: 12px;
+    margin-bottom: 14px;
+    box-shadow: 0 2px 10px rgba(92,58,33,0.07);
+    overflow: hidden;
+    animation: aiCardFadeIn 0.4s ease;
+  }
+  @keyframes aiCardFadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .ai-card-title {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #fff;
+    padding: 12px 18px;
+    background: linear-gradient(135deg, #8b5e3c, #a07050);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .ai-card-body {
+    padding: 16px 20px;
+    font-size: 0.88rem;
+    line-height: 1.85;
+    color: #3a2e2a;
+  }
+  .ai-card-body p { margin: 8px 0; }
+  .ai-card-body p:first-child { margin-top: 0; }
+  .ai-card-body p:last-child { margin-bottom: 0; }
+  .ai-card-body ul, .ai-card-body ol {
+    padding-left: 22px;
     margin: 8px 0;
   }
-  .ai-card li { margin: 4px 0; }
-  .ai-card strong, .ai-card b { color: #5c3a21; }
-  .ai-card em { color: #8a7060; }
-  .ai-card blockquote {
+  .ai-card-body li {
+    margin: 5px 0;
+    position: relative;
+  }
+  .ai-card-body ul li::marker { color: #8b5e3c; }
+  .ai-card-body strong, .ai-card-body b { color: #5c3a21; }
+  .ai-card-body em { color: #8a7060; font-style: normal; background: linear-gradient(to top, #f0e6d9 40%, transparent 40%); }
+  .ai-card-body blockquote {
     margin: 10px 0;
-    padding: 8px 14px;
+    padding: 10px 16px;
     background: #faf6f1;
-    border-left: 3px solid #d4c4b0;
-    border-radius: 0 6px 6px 0;
+    border-left: 3px solid #d4a017;
+    border-radius: 0 8px 8px 0;
     color: #6d5a20;
   }
-  .ai-card table {
+  .ai-card-body table {
     width: 100%;
-    border-collapse: collapse;
+    border-collapse: separate;
+    border-spacing: 0;
     margin: 10px 0;
     font-size: 0.84rem;
-  }
-  .ai-card th, .ai-card td {
-    padding: 8px 10px;
+    border-radius: 8px;
+    overflow: hidden;
     border: 1px solid #e8ddd0;
+  }
+  .ai-card-body th, .ai-card-body td {
+    padding: 8px 12px;
+    border: none;
     text-align: left;
   }
-  .ai-card th {
+  .ai-card-body th {
     background: #f0e6d9;
     font-weight: 600;
     color: #5c3a21;
   }
-  .ai-card code {
+  .ai-card-body tr:nth-child(even) td {
+    background: #faf6f1;
+  }
+  .ai-card-body td + td, .ai-card-body th + th {
+    border-left: 1px solid #e8ddd0;
+  }
+  .ai-card-body code {
     background: #f0e6d9;
     padding: 1px 5px;
     border-radius: 4px;
     font-size: 0.84rem;
   }
-  .ai-card hr {
+  .ai-card-body hr {
     border: none;
     border-top: 1px solid #e8ddd0;
     margin: 14px 0;
+  }
+
+  /* 报告操作按钮 */
+  .ai-report-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 16px;
+    justify-content: center;
+  }
+  .ai-report-action-btn {
+    padding: 8px 18px;
+    border: 1.5px solid #d4c4b0;
+    border-radius: 8px;
+    background: #fff;
+    color: #5c3a21;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .ai-report-action-btn:hover {
+    background: #8b5e3c;
+    color: #fff;
+    border-color: #8b5e3c;
   }
   .ai-cursor {
     display: inline-block;
     width: 2px;
     height: 1em;
-    background: #8b5e3c;
+    background: linear-gradient(180deg, #8b5e3c, #d4a017);
     margin-left: 2px;
     vertical-align: text-bottom;
-    animation: blink 0.6s infinite;
+    animation: cursorPulse 0.8s ease-in-out infinite;
   }
-  @keyframes blink { 0%,100% { opacity: 1; } 50% { opacity: 0; } }
+  @keyframes cursorPulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.2; }
+  }
 
   /* 浮动 AI 助手 */
   .ai-fab {
@@ -934,6 +1125,7 @@
     h1 { font-size: 1.3rem; }
     .tea-card-photo { width: 60px; height: 60px; }
   }
+
 </style>
 </head>
 <body>
@@ -1061,7 +1253,19 @@ async function loadTeas() {
     api('/api/dimensions'),
     api('/api/teas'),
   ]);
+
+  // 加载已保存的报告
+  const reportData = await api('/api/report');
+  if (reportData && reportData.content) {
+    analysisResult = reportData.content;
+    reportMeta = reportData;
+  } else {
+    analysisResult = '';
+    reportMeta = null;
+  }
+
   render();
+  renderReport();
 }
 
 // ── 茶样操作 ─────────────────────────────────────────────
@@ -1079,7 +1283,10 @@ async function addTea() {
     input.value = '';
     await loadTeas();
     currentCardIndex = teas.length - 1;
+    // 标记报告过期
+    if (reportMeta) reportMeta.stale = true;
     render();
+    renderReport();
   } catch (e) {
     showToast(e.message);
   }
@@ -1109,6 +1316,8 @@ async function confirmDelete() {
   const id = pendingDeleteId;
   closeDeleteModal();
   await api(`/api/teas/${id}`, { method: 'DELETE' });
+  // 标记报告过期
+  if (reportMeta) reportMeta.stale = true;
   await loadTeas();
 }
 
@@ -1117,7 +1326,10 @@ async function setScore(id, key, val) {
   if (!tea) return;
   const newVal = tea.scores[key] === val ? 0 : val;
   tea.scores[key] = newVal;
+  // 标记报告为过期
+  if (reportMeta) reportMeta.stale = true;
   render();
+  renderReport();
   await api(`/api/teas/${id}`, {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
@@ -1177,6 +1389,17 @@ async function handlePhoto(event) {
 
 // ── Tab 切换 ─────────────────────────────────────────────
 
+function renderReport() {
+  const resultEl = document.getElementById('aiResult');
+  if (analysisResult) {
+    resultEl.style.display = 'block';
+    resultEl.innerHTML = renderAiResult(analysisResult, reportMeta);
+  } else {
+    resultEl.style.display = 'none';
+    resultEl.innerHTML = '';
+  }
+}
+
 function switchTab(tab) {
   document.querySelectorAll('.tab-btn').forEach((btn, i) => {
     btn.classList.toggle('active', ['score','table','rank'][i] === tab);
@@ -1185,7 +1408,7 @@ function switchTab(tab) {
   document.getElementById('panelTable').style.display = tab === 'table' ? '' : 'none';
   document.getElementById('panelRank').style.display = tab === 'rank' ? '' : 'none';
   if (tab === 'table') renderTable();
-  if (tab === 'rank') renderRank();
+  if (tab === 'rank') { renderRank(); renderReport(); }
 }
 
 // ── 轮播 ─────────────────────────────────────────────────
@@ -1384,24 +1607,170 @@ function showToast(msg) {
 // ── AI 分析 ──────────────────────────────────────────────
 
 const SECTION_ICONS = { '逐款点评': '🍃', '横向对比': '⚖️', '选购建议': '🛒', '冲泡建议': '☕' };
-let analysisResult = '';  // 品鉴分析报告（固定，只生成一次）
+let analysisResult = '';  // 品鉴分析报告内容
+let reportMeta = null;    // 报告元信息 { created_at, stale }
 let chatHistory = [];     // 追问对话历史
 
-function renderAiResult(rawMd) {
+function renderAiResult(rawMd, meta) {
+  let html = '';
+
+  // 报告头部
+  if (meta) {
+    const scoredTeas = teas.filter(t => Object.values(t.scores).some(v => v > 0));
+    const maxPossible = DIMENSIONS.length * 5;
+    const best = scoredTeas.length > 0 ? scoredTeas.reduce((a, b) => getTotal(a) > getTotal(b) ? a : b) : null;
+    const bestScore = best ? getTotal(best) : 0;
+    html += `<div class="ai-report-header">
+      <h3>🍵 AI 品鉴分析报告</h3>
+      <div class="ai-report-meta">
+        <span>📅 ${meta.created_at || '刚刚生成'}</span>
+        <span>🍃 ${scoredTeas.length} 款茶样</span>
+        ${best ? `<span>🏆 最高分 ${bestScore}/${maxPossible}（${best.name}）</span>` : ''}
+      </div>
+    </div>`;
+  }
+
+  // 评分速览
+  const scoredTeas = teas.filter(t => Object.values(t.scores).some(v => v > 0));
+  if (scoredTeas.length > 0) {
+    const maxPossible = DIMENSIONS.length * 5;
+    html += `<div class="ai-score-overview">
+      <div class="ai-score-overview-title">📊 评分速览</div>`;
+    scoredTeas.forEach(t => {
+      const total = getTotal(t);
+      const pct = (total / maxPossible * 100).toFixed(0);
+      html += `<div class="ai-score-item">
+        <div class="ai-score-item-name">${t.name}</div>
+        <div class="ai-score-item-bars">`;
+      DIMENSIONS.forEach(d => {
+        const v = t.scores[d.key] || 0;
+        const fillPct = (v / 5 * 100).toFixed(0);
+        html += `<div style="flex:1;text-align:center;">
+          <div class="ai-score-dim-bar">
+            <div class="ai-score-dim-fill" style="width:${fillPct}%"></div>
+          </div>
+          <div class="ai-score-dim-label">${d.name}</div>
+        </div>`;
+      });
+      html += `</div>
+        <div class="ai-score-item-total">${total}/${maxPossible}</div>
+      </div>`;
+    });
+    html += `</div>`;
+  }
+
+  // 过期提示
+  if (meta && meta.stale) {
+    html += `<div class="ai-report-stale-hint">
+      ⚠️ 评分数据已变更，报告可能过时
+      <button onclick="aiAnalyze()">重新分析</button>
+    </div>`;
+  }
+
+  // 报告内容
   const sections = rawMd.split(/^## /m).filter(Boolean);
   if (sections.length <= 1) {
-    return '<div class="ai-card">' + marked.parse(rawMd) + '</div>';
+    html += `<div class="ai-card"><div class="ai-card-title">📋 分析结果</div><div class="ai-card-body">${marked.parse(rawMd)}</div></div>`;
+  } else {
+    html += sections.map(sec => {
+      const nlIdx = sec.indexOf('\n');
+      const title = nlIdx > -1 ? sec.substring(0, nlIdx).trim() : sec.trim();
+      const body = nlIdx > -1 ? sec.substring(nlIdx + 1).trim() : '';
+      const icon = Object.entries(SECTION_ICONS).find(([k]) => title.includes(k))?.[1] || '📋';
+      return `<div class="ai-card">
+        <div class="ai-card-title">${icon} ${title}</div>
+        <div class="ai-card-body">${marked.parse(body)}</div>
+      </div>`;
+    }).join('');
   }
-  return sections.map(sec => {
-    const nlIdx = sec.indexOf('\n');
-    const title = nlIdx > -1 ? sec.substring(0, nlIdx).trim() : sec.trim();
-    const body = nlIdx > -1 ? sec.substring(nlIdx + 1).trim() : '';
-    const icon = Object.entries(SECTION_ICONS).find(([k]) => title.includes(k))?.[1] || '📋';
-    return `<div class="ai-card">
-      <div class="ai-card-title">${icon} ${title}</div>
-      ${marked.parse(body)}
-    </div>`;
-  }).join('');
+
+  // 操作按钮
+  html += `<div class="ai-report-actions">
+    <button class="ai-report-action-btn" onclick="aiAnalyze()">🔄 重新分析</button>
+    <button class="ai-report-action-btn" onclick="copyReport()">📋 复制文本</button>
+    <button class="ai-report-action-btn" onclick="exportPdf()">📄 导出 PDF</button>
+  </div>`;
+
+  return html;
+}
+
+function copyReport() {
+  if (!analysisResult) return;
+  navigator.clipboard.writeText(analysisResult).then(() => {
+    showToast('报告已复制到剪贴板');
+  }).catch(() => {
+    showToast('复制失败，请手动选择复制');
+  });
+}
+
+function exportPdf() {
+  if (!analysisResult) return;
+  // 只提取报告区域 HTML
+  const resultEl = document.getElementById('aiResult');
+  const reportHtml = resultEl.innerHTML;
+  const printWin = window.open('', '_blank');
+  printWin.document.write(`<!DOCTYPE html><html lang="zh-CN"><head>
+<meta charset="UTF-8">
+<title>岩茶品鉴分析报告</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Microsoft YaHei", sans-serif;
+    color: #3a2e2a;
+    padding: 32px;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  .ai-report-header {
+    background: linear-gradient(135deg, #5c3a21 0%, #8b5e3c 60%, #d4a017 100%);
+    border-radius: 12px; padding: 20px 22px; margin-bottom: 16px; color: #fff;
+    position: relative; overflow: hidden; -webkit-print-color-adjust: exact; print-color-adjust: exact;
+  }
+  .ai-report-header::after { content: ''; display: none; }
+  .ai-report-header h3 { font-size: 1.15rem; font-weight: 700; margin-bottom: 8px; }
+  .ai-report-meta { font-size: 0.82rem; opacity: 0.85; display: flex; gap: 16px; flex-wrap: wrap; }
+  .ai-report-meta span { display: flex; align-items: center; gap: 4px; }
+  .ai-score-overview {
+    background: #fff; border-radius: 12px; padding: 16px 20px; margin-bottom: 14px;
+    box-shadow: 0 2px 8px rgba(92,58,33,0.06); break-inside: avoid;
+  }
+  .ai-score-overview-title { font-size: 0.9rem; font-weight: 700; color: #5c3a21; margin-bottom: 12px; display: flex; align-items: center; gap: 6px; }
+  .ai-score-item { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px solid #f0e6d9; }
+  .ai-score-item:last-child { border-bottom: none; }
+  .ai-score-item-name { font-weight: 600; font-size: 0.88rem; color: #5c3a21; min-width: 80px; }
+  .ai-score-item-bars { flex: 1; display: flex; gap: 3px; align-items: center; }
+  .ai-score-dim-bar { height: 18px; border-radius: 4px; background: #e8ddd0; position: relative; min-width: 24px; flex: 1; overflow: hidden; }
+  .ai-score-dim-fill { height: 100%; border-radius: 4px; background: linear-gradient(180deg, #8b5e3c, #a06d40); -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .ai-score-dim-label { font-size: 0.68rem; color: #a08a78; text-align: center; margin-top: 2px; }
+  .ai-score-item-total { font-weight: 700; font-size: 0.9rem; color: #5c3a21; min-width: 50px; text-align: right; }
+  .ai-card { background: #fff; border-radius: 12px; margin-bottom: 14px; box-shadow: 0 2px 10px rgba(92,58,33,0.07); overflow: hidden; break-inside: avoid; }
+  .ai-card-title {
+    font-size: 0.95rem; font-weight: 700; color: #fff; padding: 12px 18px;
+    background: linear-gradient(135deg, #8b5e3c, #a07050); display: flex; align-items: center; gap: 6px;
+    -webkit-print-color-adjust: exact; print-color-adjust: exact;
+  }
+  .ai-card-body { padding: 16px 20px; font-size: 0.88rem; line-height: 1.85; color: #3a2e2a; }
+  .ai-card-body p { margin: 8px 0; }
+  .ai-card-body p:first-child { margin-top: 0; }
+  .ai-card-body p:last-child { margin-bottom: 0; }
+  .ai-card-body ul, .ai-card-body ol { padding-left: 22px; margin: 8px 0; }
+  .ai-card-body li { margin: 5px 0; }
+  .ai-card-body ul li::marker { color: #8b5e3c; }
+  .ai-card-body strong, .ai-card-body b { color: #5c3a21; }
+  .ai-card-body em { color: #8a7060; }
+  .ai-card-body blockquote { margin: 10px 0; padding: 10px 16px; background: #faf6f1; border-left: 3px solid #d4a017; border-radius: 0 8px 8px 0; color: #6d5a20; }
+  .ai-card-body table { width: 100%; border-collapse: separate; border-spacing: 0; margin: 10px 0; font-size: 0.84rem; border-radius: 8px; overflow: hidden; border: 1px solid #e8ddd0; }
+  .ai-card-body th, .ai-card-body td { padding: 8px 12px; border: none; text-align: left; }
+  .ai-card-body th { background: #f0e6d9; font-weight: 600; color: #5c3a21; }
+  .ai-card-body tr:nth-child(even) td { background: #faf6f1; }
+  .ai-card-body td + td, .ai-card-body th + th { border-left: 1px solid #e8ddd0; }
+  .ai-card-body code { background: #f0e6d9; padding: 1px 5px; border-radius: 4px; font-size: 0.84rem; }
+  .ai-card-body hr { border: none; border-top: 1px solid #e8ddd0; margin: 14px 0; }
+  .ai-report-actions { display: none; }
+</style>
+</head><body>${reportHtml}</body></html>`);
+  printWin.document.close();
+  printWin.onload = () => { printWin.print(); };
 }
 
 function buildTeaInfoText() {
@@ -1431,7 +1800,7 @@ async function aiAnalyze() {
   btn.disabled = true;
   btn.textContent = '🤖 分析中…';
   resultEl.style.display = 'block';
-  resultEl.innerHTML = '<div class="ai-card"><div class="ai-card-title">🤖 正在分析</div><p>AI 品鉴师正在品味你的茶样数据<span class="ai-cursor"></span></p></div>';
+  resultEl.innerHTML = '<div class="ai-card"><div class="ai-card-title">🤖 正在分析</div><div class="ai-card-body"><p>AI 品鉴师正在品味你的茶样数据<span class="ai-cursor"></span></p></div></div>';
 
   let fullText = '';
   try {
@@ -1462,19 +1831,22 @@ async function aiAnalyze() {
           const parsed = JSON.parse(data);
           if (parsed.content) {
             fullText += parsed.content;
-            resultEl.innerHTML = renderAiResult(fullText) + '<span class="ai-cursor"></span>';
+            resultEl.innerHTML = renderAiResult(fullText, { created_at: '生成中…', stale: false }) + '<span class="ai-cursor"></span>';
           }
         } catch {}
       }
     }
 
-    resultEl.innerHTML = renderAiResult(fullText);
-    analysisResult = fullText;  // 保存分析结果，不再更改
-    chatHistory = [];  // 重置对话历史，下次对话时使用新的报告上下文
+    // 从后端获取最新的报告元信息
+    const reportData = await api('/api/report');
+    reportMeta = reportData || { created_at: '刚刚', stale: false };
+    analysisResult = fullText;
+    resultEl.innerHTML = renderAiResult(fullText, reportMeta);
+    chatHistory = [];  // 重置对话历史
   } catch (e) {
-    resultEl.innerHTML = `<div class="ai-card" style="border-left-color:#d4380d;">
-      <div class="ai-card-title" style="color:#d4380d;">⚠️ 分析失败</div>
-      <p style="color:#d4380d;">${e.message}</p>
+    resultEl.innerHTML = `<div class="ai-card">
+      <div class="ai-card-title" style="background:linear-gradient(135deg,#d4380d,#e87040);">⚠️ 分析失败</div>
+      <div class="ai-card-body"><p style="color:#d4380d;">${e.message}</p></div>
     </div>`;
   } finally {
     btn.disabled = false;
