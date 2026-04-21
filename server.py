@@ -20,6 +20,7 @@ PHOTO_DIR = DATA_DIR / "photos"
 BACKUP_DIR = DATA_DIR / "backups"
 TEAS_FILE = DATA_DIR / "teas.json"
 CONFIG_FILE = DATA_DIR / "config.json"
+NOTES_FILE = DATA_DIR / "notes.json"
 
 app = Flask(__name__)
 
@@ -114,6 +115,25 @@ def mask_key(key):
 def get_dimensions():
     cfg = load_config()
     return cfg.get("dimensions") or DEFAULT_DIMENSIONS
+
+
+def load_notes():
+    if NOTES_FILE.exists():
+        with open(NOTES_FILE, "r", encoding="utf-8") as f:
+            return json.load(f)
+    return {"nextId": 0, "notes": []}
+
+
+def save_notes(data):
+    with open(NOTES_FILE, "w", encoding="utf-8") as f:
+        json.dump(data, f, ensure_ascii=False, indent=2)
+
+
+def find_note(data, note_id):
+    for note in data["notes"]:
+        if note["id"] == note_id:
+            return note
+    return None
 
 
 # ── 静态文件 ──────────────────────────────────────────────
@@ -342,6 +362,8 @@ def create_backup():
             zf.write(TEAS_FILE, "teas.json")
         if CONFIG_FILE.exists():
             zf.write(CONFIG_FILE, "config.json")
+        if NOTES_FILE.exists():
+            zf.write(NOTES_FILE, "notes.json")
         if PHOTO_DIR.exists():
             for photo in PHOTO_DIR.iterdir():
                 if photo.is_file():
@@ -397,6 +419,8 @@ def restore_backup():
             azf.write(TEAS_FILE, "teas.json")
             if CONFIG_FILE.exists():
                 azf.write(CONFIG_FILE, "config.json")
+            if NOTES_FILE.exists():
+                azf.write(NOTES_FILE, "notes.json")
             if PHOTO_DIR.exists():
                 for p in PHOTO_DIR.iterdir():
                     if p.is_file():
@@ -420,6 +444,14 @@ def restore_backup():
                     cfg = json.load(cf)
                 save_config(cfg)
 
+            # 恢复 notes.json
+            if "notes.json" in names:
+                with zf.open("notes.json") as nf:
+                    notes_data = json.load(nf)
+                save_notes(notes_data)
+            else:
+                save_notes({"nextId": 0, "notes": []})
+
             # 清空并恢复 photos
             if PHOTO_DIR.exists():
                 shutil.rmtree(PHOTO_DIR)
@@ -441,6 +473,7 @@ def restore_backup():
 @app.route("/api/data", methods=["DELETE"])
 def clear_data():
     save_data({"nextId": 0, "teas": [], "report": None})
+    save_notes({"nextId": 0, "notes": []})
     if PHOTO_DIR.exists():
         shutil.rmtree(PHOTO_DIR)
     PHOTO_DIR.mkdir(exist_ok=True)
@@ -460,6 +493,70 @@ def delete_report():
     data = load_data()
     data["report"] = None
     save_data(data)
+    return "", 204
+
+
+# ── 笔记 API ──────────────────────────────────────────────
+
+@app.route("/api/notes", methods=["GET"])
+def get_notes():
+    data = load_notes()
+    return jsonify(data["notes"])
+
+
+@app.route("/api/notes", methods=["POST"])
+def add_note():
+    body = request.get_json()
+    content = (body.get("content") or "").strip()
+    if not content:
+        return jsonify({"error": "笔记内容不能为空"}), 400
+
+    data = load_notes()
+    data["nextId"] += 1
+    now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    note = {
+        "id": data["nextId"],
+        "title": (body.get("title") or "").strip(),
+        "content": content,
+        "source": body.get("source", "manual"),
+        "created_at": now,
+        "updated_at": now,
+    }
+    data["notes"].append(note)
+    save_notes(data)
+    return jsonify(note), 201
+
+
+@app.route("/api/notes/<int:note_id>", methods=["PUT"])
+def update_note(note_id):
+    body = request.get_json()
+    content = (body.get("content") or "").strip()
+    if not content:
+        return jsonify({"error": "笔记内容不能为空"}), 400
+
+    data = load_notes()
+    note = find_note(data, note_id)
+    if not note:
+        abort(404)
+
+    title = (body.get("title") or "").strip()
+    if title:
+        note["title"] = title
+    note["content"] = content
+    note["updated_at"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    save_notes(data)
+    return jsonify(note)
+
+
+@app.route("/api/notes/<int:note_id>", methods=["DELETE"])
+def delete_note(note_id):
+    data = load_notes()
+    note = find_note(data, note_id)
+    if not note:
+        abort(404)
+
+    data["notes"] = [n for n in data["notes"] if n["id"] != note_id]
+    save_notes(data)
     return "", 204
 
 

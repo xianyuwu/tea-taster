@@ -451,6 +451,344 @@
     padding: 30px;
     font-size: 0.9rem;
   }
+
+  /* 顶层 Tab */
+  .top-tabs {
+    display: flex;
+    gap: 0;
+    margin-bottom: 16px;
+    border-radius: 10px;
+    overflow: hidden;
+    border: 2px solid #8b5e3c;
+  }
+  .top-tab {
+    flex: 1;
+    padding: 12px;
+    border: none;
+    background: none;
+    color: #999;
+    font-weight: 700;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .top-tab.active {
+    background: #f0e6d9;
+    color: #8b5e3c;
+  }
+
+  /* 笔记 */
+  .notes-header {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 14px;
+  }
+  /* 彩色卡片调色板 */
+  .note-card {
+    border-radius: 12px;
+    padding: 16px 18px;
+    margin-bottom: 14px;
+    box-shadow: 0 2px 8px rgba(92,58,33,0.08);
+    border-left: 4px solid transparent;
+    transition: transform 0.15s, box-shadow 0.15s;
+  }
+  .note-card:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 16px rgba(92,58,33,0.14);
+  }
+  .note-card.color-0 { background: #fdf6ec; border-left-color: #e6a23c; }
+  .note-card.color-1 { background: #ecf5ff; border-left-color: #409eff; }
+  .note-card.color-2 { background: #f0f9eb; border-left-color: #67c23a; }
+  .note-card.color-3 { background: #fef0f0; border-left-color: #f56c6c; }
+  .note-card.color-4 { background: #f4f4f5; border-left-color: #909399; }
+  .note-card.color-5 { background: #faf0e6; border-left-color: #d4a017; }
+  .note-card.color-6 { background: #ebf4ff; border-left-color: #6b8dd6; }
+  .note-card.color-7 { background: #f5f0eb; border-left-color: #8b5e3c; }
+  .note-card-title {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #3a2e2a;
+    margin-bottom: 6px;
+    line-height: 1.4;
+  }
+  .note-meta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+    font-size: 12px;
+    color: #8a7060;
+  }
+  .note-source-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: rgba(0,0,0,0.06);
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 11px;
+    color: #5c3a21;
+    font-weight: 600;
+  }
+  .note-content {
+    color: #3a2e2a;
+    font-size: 14px;
+    line-height: 1.7;
+    word-break: break-word;
+  }
+  .note-content p { margin: 0 0 8px 0; }
+  .note-content p:last-child { margin-bottom: 0; }
+  .note-content h1, .note-content h2, .note-content h3,
+  .note-content h4, .note-content h5, .note-content h6 {
+    margin: 12px 0 6px 0;
+    font-weight: 700;
+    color: #3a2e2a;
+    line-height: 1.4;
+  }
+  .note-content h1 { font-size: 1.3em; }
+  .note-content h2 { font-size: 1.15em; }
+  .note-content h3 { font-size: 1.05em; }
+  .note-content ul, .note-content ol { margin: 6px 0; padding-left: 20px; }
+  .note-content li { margin: 3px 0; }
+  .note-content blockquote {
+    margin: 8px 0;
+    padding: 8px 14px;
+    border-left: 3px solid #8b5e3c;
+    background: rgba(139,94,60,0.06);
+    color: #5c3a21;
+    border-radius: 0 6px 6px 0;
+  }
+  .note-content code {
+    background: rgba(139,94,60,0.1);
+    padding: 1px 5px;
+    border-radius: 3px;
+    font-size: 0.9em;
+    color: #8b5e3c;
+  }
+  .note-content pre {
+    background: #f5f0eb;
+    padding: 10px 14px;
+    border-radius: 6px;
+    overflow-x: auto;
+    margin: 8px 0;
+  }
+  .note-content pre code { background: none; padding: 0; }
+  .note-content hr { border: none; border-top: 1px solid #e8ddd0; margin: 10px 0; }
+  .note-content strong { font-weight: 700; }
+  .note-content em { font-style: italic; }
+  .note-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    margin-top: 10px;
+  }
+  .note-action-btn {
+    padding: 4px 10px;
+    border: 1px solid #e8ddd0;
+    background: rgba(255,255,255,0.6);
+    border-radius: 6px;
+    font-size: 12px;
+    color: #8a7060;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .note-action-btn:hover {
+    border-color: #8b5e3c;
+    color: #8b5e3c;
+  }
+  .note-action-btn.danger:hover {
+    border-color: #d4380d;
+    color: #d4380d;
+  }
+
+  /* 笔记编辑弹窗 — 75% 视口 */
+  .note-editor-dialog {
+    background: #fff;
+    border-radius: 16px;
+    width: 85vw;
+    height: 85vh;
+    max-width: 1100px;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 12px 40px rgba(92,58,33,0.22);
+    overflow: hidden;
+    transform: scale(0.9);
+    transition: transform 0.2s;
+  }
+  .modal-mask.show .note-editor-dialog { transform: scale(1); }
+  .note-editor-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 20px;
+    border-bottom: 1px solid #e8ddd0;
+    flex-shrink: 0;
+  }
+  .note-editor-dialog-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #3a2e2a;
+  }
+  .note-editor-close {
+    background: none;
+    border: none;
+    font-size: 1.2rem;
+    color: #8a7060;
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: 6px;
+    transition: all 0.15s;
+  }
+  .note-editor-close:hover { background: #f0e6d9; color: #3a2e2a; }
+  .note-title-input {
+    flex-shrink: 0;
+    padding: 10px 20px;
+    border: none;
+    border-bottom: 1px solid #e8ddd0;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #3a2e2a;
+    outline: none;
+    background: #faf6f1;
+  }
+  .note-title-input::placeholder { color: #c4b0a0; font-weight: 400; }
+
+  /* 工具栏 */
+  .note-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    padding: 6px 20px;
+    border-bottom: 1px solid #e8ddd0;
+    background: #faf6f1;
+    flex-shrink: 0;
+    flex-wrap: wrap;
+  }
+  .note-toolbar-btn {
+    background: none;
+    border: 1px solid transparent;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 13px;
+    color: #5c3a21;
+    cursor: pointer;
+    transition: all 0.12s;
+  }
+  .note-toolbar-btn:hover { background: #e8ddd0; border-color: #d4c4b0; }
+  .note-tab-btn.active {
+    background: #8b5e3c;
+    color: #fff;
+    border-color: #8b5e3c;
+  }
+  .note-tab-btn.active:hover { background: #6d4a2f; }
+  .note-toolbar-sep {
+    width: 1px;
+    height: 18px;
+    background: #d4c4b0;
+    margin: 0 4px;
+  }
+
+  /* 编辑区：textarea 和 preview 共享同一空间，切换显示 */
+  .note-editor-body {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    overflow: hidden;
+  }
+  .note-editor-textarea {
+    flex: 1;
+    width: 100%;
+    padding: 14px 16px;
+    border: none;
+    font-size: 14px;
+    font-family: "SF Mono", "Menlo", "Consolas", monospace;
+    line-height: 1.7;
+    resize: none;
+    outline: none;
+    color: #3a2e2a;
+    background: #fff;
+  }
+  .note-editor-textarea::placeholder { color: #c4b0a0; }
+  .note-editor-preview {
+    flex: 1;
+    padding: 14px 16px;
+    overflow-y: auto;
+    background: #fff;
+    line-height: 1.7;
+    color: #3a2e2a;
+    width: 100%;
+  }
+  .note-editor-preview h1, .note-editor-preview h2, .note-editor-preview h3,
+  .note-editor-preview h4, .note-editor-preview h5, .note-editor-preview h6 {
+    margin: 10px 0 6px; font-weight: 700; color: #3a2e2a;
+  }
+  .note-editor-preview h1 { font-size: 1.3em; }
+  .note-editor-preview h2 { font-size: 1.15em; }
+  .note-editor-preview h3 { font-size: 1.05em; }
+  .note-editor-preview ul, .note-editor-preview ol { margin: 6px 0; padding-left: 20px; }
+  .note-editor-preview li { margin: 3px 0; }
+  .note-editor-preview blockquote {
+    margin: 8px 0; padding: 8px 14px; border-left: 3px solid #8b5e3c;
+    background: rgba(139,94,60,0.06); color: #5c3a21; border-radius: 0 6px 6px 0;
+  }
+  .note-editor-preview code {
+    background: rgba(139,94,60,0.1); padding: 1px 5px; border-radius: 3px;
+    font-size: 0.9em; color: #8b5e3c;
+  }
+  .note-editor-preview pre {
+    background: #f5f0eb; padding: 10px 14px; border-radius: 6px;
+    overflow-x: auto; margin: 8px 0;
+  }
+  .note-editor-preview pre code { background: none; padding: 0; }
+  .note-editor-preview hr { border: none; border-top: 1px solid #e8ddd0; margin: 10px 0; }
+  .note-editor-preview p { margin: 0 0 8px; }
+  .note-editor-preview p:last-child { margin-bottom: 0; }
+
+  .note-editor-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    padding: 12px 20px;
+    border-top: 1px solid #e8ddd0;
+    flex-shrink: 0;
+    background: #faf6f1;
+  }
+
+  /* AI 对话收藏按钮 */
+  .chat-collect-btn {
+    display: none;
+    float: right;
+    padding: 2px 6px;
+    border: none;
+    background: none;
+    cursor: pointer;
+    font-size: 0.85rem;
+    opacity: 0.5;
+    transition: opacity 0.15s;
+  }
+  .chat-collect-btn:hover { opacity: 1; }
+  .chat-collect-btn.show { display: inline-block; }
+
+  /* 笔记 Toast */
+  .toast {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--color-primary);
+    color: #fff;
+    padding: 8px 20px;
+    border-radius: 20px;
+    font-size: var(--font-size-sm);
+    font-weight: 600;
+    z-index: 200;
+    opacity: 0;
+    transition: opacity 0.3s;
+    pointer-events: none;
+  }
+  .toast.show { opacity: 1; }
+
   .tabs {
     display: flex;
     gap: 0;
@@ -790,6 +1128,28 @@
   @keyframes cursorPulse {
     0%, 100% { opacity: 1; }
     50% { opacity: 0.2; }
+  }
+
+  .ai-thinking-dots {
+    display: inline-flex;
+    gap: 4px;
+    align-items: center;
+    padding: 4px 0;
+  }
+  .ai-thinking-dots span {
+    display: inline-block;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #8b5e3c;
+    opacity: 0.3;
+    animation: thinkingBounce 1.2s ease-in-out infinite;
+  }
+  .ai-thinking-dots span:nth-child(2) { animation-delay: 0.15s; }
+  .ai-thinking-dots span:nth-child(3) { animation-delay: 0.3s; }
+  @keyframes thinkingBounce {
+    0%, 60%, 100% { opacity: 0.3; transform: translateY(0); }
+    30% { opacity: 1; transform: translateY(-4px); }
   }
 
   /* 浮动 AI 助手 */
@@ -1134,52 +1494,70 @@
   <h1>🍵 岩茶品鉴对比</h1>
   <a href="/admin" style="position:absolute;right:0;top:50%;transform:translateY(-50%);color:#8b5e3c;font-size:0.82rem;text-decoration:none;font-weight:600;background:#f0e6d9;padding:4px 12px;border-radius:14px;">⚙️ 配置管理</a>
 </div>
-<p class="subtitle">逐款打分，找到最适合你的那杯茶</p>
 
-<div class="section">
-  <div class="section-title">📌 冲泡小贴士</div>
-  <div class="tip-box">
-    每款茶用<b>相同条件</b>冲泡才有对比意义：盖碗冲泡，投茶约8g，100°C沸水，前三泡快出（5~10秒），第四泡起可适当延长。每喝完一款茶，喝几口白开水清口后再品下一款。
+<!-- 顶层 Tab -->
+<div class="top-tabs">
+  <button class="top-tab active" onclick="switchTopTab('tasting')">🎯 品鉴打分</button>
+  <button class="top-tab" onclick="switchTopTab('notes')">📝 品茶笔记</button>
+</div>
+
+<!-- 品鉴打分视图 -->
+<div id="viewTasting">
+  <p class="subtitle">逐款打分，找到最适合你的那杯茶</p>
+
+  <div class="section">
+    <div class="section-title">📌 冲泡小贴士</div>
+    <div class="tip-box">
+      每款茶用<b>相同条件</b>冲泡才有对比意义：盖碗冲泡，投茶约8g，100°C沸水，前三泡快出（5~10秒），第四泡起可适当延长。每喝完一款茶，喝几口白开水清口后再品下一款。
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">➕ 添加茶样</div>
+    <div class="add-area">
+      <input type="text" id="teaNameInput" placeholder="输入茶名，如：肉桂、水仙…" onkeydown="if(event.key==='Enter')addTea()">
+      <button class="btn btn-primary" onclick="addTea()">添加</button>
+    </div>
+    <div class="tea-tags" id="teaTags"></div>
+  </div>
+
+  <div class="section">
+    <div class="tabs">
+      <button class="tab-btn active" onclick="switchTab('score')">逐款打分</button>
+      <button class="tab-btn" onclick="switchTab('table')">对比表格</button>
+      <button class="tab-btn" onclick="switchTab('rank')">排名结果</button>
+    </div>
+
+    <div id="panelScore">
+      <div id="teaCards" class="tea-cards">
+        <div class="empty-hint">👆 先在上方添加你要品鉴的茶样名称</div>
+      </div>
+    </div>
+
+    <div id="panelTable" style="display:none">
+      <div class="table-wrap" id="tableWrap">
+        <div class="empty-hint">还没有打分数据，请先在「逐款打分」中评分</div>
+      </div>
+    </div>
+
+    <div id="panelRank" style="display:none">
+      <div id="rankWrap">
+        <div class="empty-hint">还没有打分数据，请先在「逐款打分」中评分</div>
+      </div>
+      <div class="ai-section">
+        <button class="ai-btn" id="btnAiAnalyze" onclick="aiAnalyze()">🤖 AI 品鉴分析</button>
+        <div class="ai-result" id="aiResult"></div>
+      </div>
+    </div>
   </div>
 </div>
 
-<div class="section">
-  <div class="section-title">➕ 添加茶样</div>
-  <div class="add-area">
-    <input type="text" id="teaNameInput" placeholder="输入茶名，如：肉桂、水仙…" onkeydown="if(event.key==='Enter')addTea()">
-    <button class="btn btn-primary" onclick="addTea()">添加</button>
+<!-- 品茶笔记视图 -->
+<div id="viewNotes" style="display:none">
+  <div class="notes-header">
+    <button class="btn btn-primary" onclick="showNoteEditor()">＋ 新增笔记</button>
   </div>
-  <div class="tea-tags" id="teaTags"></div>
-</div>
-
-<div class="section">
-  <div class="tabs">
-    <button class="tab-btn active" onclick="switchTab('score')">逐款打分</button>
-    <button class="tab-btn" onclick="switchTab('table')">对比表格</button>
-    <button class="tab-btn" onclick="switchTab('rank')">排名结果</button>
-  </div>
-
-  <div id="panelScore">
-    <div id="teaCards" class="tea-cards">
-      <div class="empty-hint">👆 先在上方添加你要品鉴的茶样名称</div>
-    </div>
-  </div>
-
-  <div id="panelTable" style="display:none">
-    <div class="table-wrap" id="tableWrap">
-      <div class="empty-hint">还没有打分数据，请先在「逐款打分」中评分</div>
-    </div>
-  </div>
-
-  <div id="panelRank" style="display:none">
-    <div id="rankWrap">
-      <div class="empty-hint">还没有打分数据，请先在「逐款打分」中评分</div>
-    </div>
-    <div class="ai-section">
-      <button class="ai-btn" id="btnAiAnalyze" onclick="aiAnalyze()">🤖 AI 品鉴分析</button>
-      <div class="ai-result" id="aiResult"></div>
-    </div>
-  </div>
+  <div id="notesList"></div>
 </div>
 
 <!-- 浮动 AI 助手 -->
@@ -1229,12 +1607,51 @@
   </div>
 </div>
 
+<!-- 笔记编辑弹窗 -->
+<div class="modal-mask" id="noteEditorModal" style="display:none">
+  <div class="note-editor-dialog">
+    <div class="note-editor-header">
+      <span class="note-editor-dialog-title" id="noteEditorTitle">📝 新增笔记</span>
+      <button class="note-editor-close" onclick="closeNoteEditor()">✕</button>
+    </div>
+    <input type="text" id="noteEditorNoteTitle" class="note-title-input" placeholder="笔记标题（可选）">
+    <div class="note-toolbar">
+      <button class="note-toolbar-btn" onclick="insertMd('bold')" title="加粗"><b>B</b></button>
+      <button class="note-toolbar-btn" onclick="insertMd('italic')" title="斜体"><i>I</i></button>
+      <span class="note-toolbar-sep"></span>
+      <button class="note-toolbar-btn" onclick="insertMd('h1')" title="一级标题">H1</button>
+      <button class="note-toolbar-btn" onclick="insertMd('h2')" title="二级标题">H2</button>
+      <button class="note-toolbar-btn" onclick="insertMd('h3')" title="三级标题">H3</button>
+      <span class="note-toolbar-sep"></span>
+      <button class="note-toolbar-btn" onclick="insertMd('ul')" title="无序列表">• 列表</button>
+      <button class="note-toolbar-btn" onclick="insertMd('ol')" title="有序列表">1. 列表</button>
+      <button class="note-toolbar-btn" onclick="insertMd('quote')" title="引用">❝ 引用</button>
+      <span class="note-toolbar-sep"></span>
+      <button class="note-toolbar-btn" onclick="insertMd('hr')" title="分割线">——</button>
+      <button class="note-toolbar-btn" onclick="insertMd('code')" title="行内代码">&lt;/&gt;</button>
+      <span class="note-toolbar-sep"></span>
+      <button class="note-toolbar-btn note-tab-btn active" id="noteTabEdit" onclick="switchNoteTab('edit')">✏️ 编辑</button>
+      <button class="note-toolbar-btn note-tab-btn" id="noteTabPreview" onclick="switchNoteTab('preview')">👁 预览</button>
+    </div>
+    <div class="note-editor-body">
+      <textarea id="noteEditorContent" class="note-editor-textarea" placeholder="记录你的品茶心得…支持 Markdown 语法" oninput="updateNotePreview()"></textarea>
+      <div id="noteEditorPreview" class="note-editor-preview" style="display:none"></div>
+    </div>
+    <div class="note-editor-footer">
+      <button class="btn btn-cancel" onclick="closeNoteEditor()">取消</button>
+      <button class="btn btn-primary" onclick="saveNote()">保存</button>
+    </div>
+  </div>
+</div>
+
 <script>
 let DIMENSIONS = [];
 let teas = [];
+let notes = [];
 let currentPhotoTeaId = null;
 let noteTimers = {};
 let currentCardIndex = 0;
+let editingNoteId = null;
 
 // ── API 工具函数 ─────────────────────────────────────────
 
@@ -1263,6 +1680,8 @@ async function loadTeas() {
     analysisResult = '';
     reportMeta = null;
   }
+
+  notes = await api('/api/notes');
 
   render();
   renderReport();
@@ -1923,9 +2342,12 @@ function appendChatMessage(role, content, isStreaming = false) {
   if (empty) empty.style.display = 'none';
 
   const avatar = role === 'user' ? '👤' : '🤖';
+  const collectBtn = (role === 'assistant' && !isStreaming)
+    ? '<button class="chat-collect-btn show" onclick="collectNote(this)" title="收藏到笔记">📌</button>'
+    : '';
   const msgHtml = `<div class="chat-msg ${role}">
     <div class="chat-avatar">${avatar}</div>
-    <div class="chat-bubble">${role === 'user' ? escapeHtml(content) : marked.parse(content)}${isStreaming ? '<span class="ai-cursor"></span>' : ''}</div>
+    <div class="chat-bubble">${role === 'user' ? escapeHtml(content) : marked.parse(content)}${isStreaming ? '<span class="ai-cursor"></span>' : ''}${collectBtn}</div>
   </div>`;
 
   body.insertAdjacentHTML('beforeend', msgHtml);
@@ -1986,6 +2408,18 @@ async function sendChat() {
   appendChatMessage('user', message);
 
   let fullText = '';
+
+  // 立即显示"正在思考"占位
+  const thinkingHtml = `<div class="chat-msg assistant thinking-placeholder">
+    <div class="chat-avatar">🤖</div>
+    <div class="chat-bubble">
+      <div class="ai-thinking-dots"><span></span><span></span><span></span></div>
+    </div>
+  </div>`;
+  const chatBody = document.getElementById('aiChatBody');
+  chatBody.insertAdjacentHTML('beforeend', thinkingHtml);
+  scrollToBottom();
+
   try {
     const res = await fetch('/api/ai/chat', {
       method: 'POST',
@@ -1998,7 +2432,9 @@ async function sendChat() {
       throw new Error(err.error || '请求失败');
     }
 
-    // 先显示空的助手消息占位
+    // 移除思考占位，显示流式内容气泡
+    const thinkingEl = chatBody.querySelector('.thinking-placeholder');
+    if (thinkingEl) thinkingEl.remove();
     appendChatMessage('assistant', '', true);
 
     const reader = res.body.getReader();
@@ -2029,12 +2465,15 @@ async function sendChat() {
 
     // 完成，保存助手回复
     chatHistory.push({ role: 'assistant', content: fullText });
-    // 移除光标
-    const lastBubble = document.querySelector('.ai-chat-body .chat-msg.assistant:last-child .chat-bubble');
+    // 移除光标，加收藏按钮
+    const lastBubble = document.querySelector('#aiChatBody .chat-msg.assistant:last-child .chat-bubble');
     if (lastBubble) {
-      lastBubble.innerHTML = marked.parse(fullText);
+      lastBubble.innerHTML = marked.parse(fullText) + '<button class="chat-collect-btn show" onclick="collectNote(this)" title="收藏到笔记">📌</button>';
     }
   } catch (e) {
+    // 移除可能残留的思考占位
+    const thinkingEl = chatBody.querySelector('.thinking-placeholder');
+    if (thinkingEl) thinkingEl.remove();
     chatHistory.push({ role: 'assistant', content: `抱歉，发生了错误：${e.message}` });
     appendChatMessage('assistant', `抱歉，发生了错误：${e.message}`);
   } finally {
@@ -2103,6 +2542,220 @@ function initResizeHandle() {
   document.addEventListener('touchend', () => {
     isDragging = false;
   });
+}
+
+// ── 顶层 Tab 切换 ──────────────────────────────────────────
+
+function switchTopTab(tab) {
+  document.querySelectorAll('.top-tab').forEach(btn => btn.classList.remove('active'));
+  document.querySelector(`.top-tab[onclick*="${tab}"]`).classList.add('active');
+  document.getElementById('viewTasting').style.display = tab === 'tasting' ? '' : 'none';
+  document.getElementById('viewNotes').style.display = tab === 'notes' ? '' : 'none';
+  if (tab === 'notes') renderNotes();
+}
+
+// ── 笔记管理 ──────────────────────────────────────────────
+
+function renderNotes() {
+  const list = document.getElementById('notesList');
+  if (!notes.length) {
+    list.innerHTML = '<div class="empty-hint">还没有笔记，点击上方按钮新增，或在 AI 对话中收藏</div>';
+    return;
+  }
+  const sorted = [...notes].reverse();
+  list.innerHTML = sorted.map((n, i) => {
+    const colorClass = 'color-' + (i % 8);
+    const sourceLabel = n.source === 'ai-chat'
+      ? '<span class="note-source-tag">🤖 来自AI对话</span>'
+      : '<span class="note-source-tag">✍️ 手动记录</span>';
+    const titleHtml = n.title ? `<div class="note-card-title">${escHtml(n.title)}</div>` : '';
+    return `<div class="note-card ${colorClass}">
+      ${titleHtml}
+      <div class="note-meta">${sourceLabel} <span>${n.updated_at || n.created_at}</span></div>
+      <div class="note-content">${marked.parse(n.content)}</div>
+      <div class="note-actions">
+        <button class="note-action-btn" onclick="showNoteEditor(${n.id})">✎ 编辑</button>
+        <button class="note-action-btn danger" onclick="deleteNote(${n.id})">✕ 删除</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function escHtml(s) {
+  const d = document.createElement('div');
+  d.textContent = s;
+  return d.innerHTML;
+}
+
+function showNoteEditor(id) {
+  editingNoteId = id || null;
+  const modal = document.getElementById('noteEditorModal');
+  const titleEl = document.getElementById('noteEditorTitle');
+  const titleInput = document.getElementById('noteEditorNoteTitle');
+  const textarea = document.getElementById('noteEditorContent');
+  if (editingNoteId) {
+    titleEl.textContent = '📝 编辑笔记';
+    const note = notes.find(n => n.id === editingNoteId);
+    titleInput.value = note ? (note.title || '') : '';
+    textarea.value = note ? note.content : '';
+  } else {
+    titleEl.textContent = '📝 新增笔记';
+    titleInput.value = '';
+    textarea.value = '';
+  }
+  updateNotePreview();
+  modal.style.display = '';
+  modal.classList.add('show');
+  setTimeout(() => textarea.focus(), 50);
+}
+
+function closeNoteEditor() {
+  const modal = document.getElementById('noteEditorModal');
+  modal.classList.remove('show');
+  setTimeout(() => { modal.style.display = 'none'; }, 200);
+  editingNoteId = null;
+  // 重置为编辑模式
+  switchNoteTab('edit');
+}
+
+async function saveNote() {
+  const textarea = document.getElementById('noteEditorContent');
+  const titleInput = document.getElementById('noteEditorNoteTitle');
+  const content = textarea.value.trim();
+  const title = titleInput.value.trim();
+  if (!content) return;
+
+  try {
+    if (editingNoteId) {
+      const updated = await api(`/api/notes/${editingNoteId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ title, content }),
+      });
+      const idx = notes.findIndex(n => n.id === editingNoteId);
+      if (idx !== -1) notes[idx] = updated;
+    } else {
+      const note = await api('/api/notes', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ title, content, source: 'manual' }),
+      });
+      notes.push(note);
+    }
+    closeNoteEditor();
+    renderNotes();
+  } catch (e) {
+    alert('保存失败：' + e.message);
+  }
+}
+
+async function deleteNote(id) {
+  if (!confirm('确定删除这条笔记吗？')) return;
+  try {
+    await api(`/api/notes/${id}`, { method: 'DELETE' });
+    notes = notes.filter(n => n.id !== id);
+    renderNotes();
+  } catch (e) {
+    alert('删除失败：' + e.message);
+  }
+}
+
+function switchNoteTab(tab) {
+  const ta = document.getElementById('noteEditorContent');
+  const pv = document.getElementById('noteEditorPreview');
+  const btnEdit = document.getElementById('noteTabEdit');
+  const btnPv = document.getElementById('noteTabPreview');
+  if (tab === 'preview') {
+    ta.style.display = 'none';
+    pv.style.display = '';
+    btnEdit.classList.remove('active');
+    btnPv.classList.add('active');
+    updateNotePreview();
+  } else {
+    ta.style.display = '';
+    pv.style.display = 'none';
+    btnEdit.classList.add('active');
+    btnPv.classList.remove('active');
+  }
+}
+
+function updateNotePreview() {
+  const textarea = document.getElementById('noteEditorContent');
+  const preview = document.getElementById('noteEditorPreview');
+  if (!textarea || !preview) return;
+  const val = textarea.value.trim();
+  preview.innerHTML = val ? marked.parse(val) : '<span style="color:#c4b0a0">预览区域…</span>';
+}
+
+function insertMd(type) {
+  const ta = document.getElementById('noteEditorContent');
+  const start = ta.selectionStart;
+  const end = ta.selectionEnd;
+  const sel = ta.value.substring(start, end);
+  let before = '', after = '', newCursorOffset = 0;
+
+  switch (type) {
+    case 'bold':
+      before = '**'; after = '**'; break;
+    case 'italic':
+      before = '*'; after = '*'; break;
+    case 'h1':
+      before = '# '; after = ''; break;
+    case 'h2':
+      before = '## '; after = ''; break;
+    case 'h3':
+      before = '### '; after = ''; break;
+    case 'ul':
+      before = '- '; after = ''; break;
+    case 'ol':
+      before = '1. '; after = ''; break;
+    case 'quote':
+      before = '> '; after = ''; break;
+    case 'hr':
+      before = '\n---\n'; after = ''; break;
+    case 'code':
+      before = '`'; after = '`'; break;
+  }
+
+  const newText = before + sel + after;
+  ta.value = ta.value.substring(0, start) + newText + ta.value.substring(end);
+  ta.selectionStart = ta.selectionEnd = start + before.length + sel.length + after.length;
+  ta.focus();
+  updateNotePreview();
+}
+
+async function collectNote(btn) {
+  const bubble = btn.closest('.chat-bubble');
+  if (!bubble) return;
+  // 获取纯文本内容
+  const text = bubble.innerText.replace('📌', '').trim();
+  if (!text) return;
+
+  try {
+    const note = await api('/api/notes', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ content: text, source: 'ai-chat' }),
+    });
+    notes.push(note);
+    btn.style.display = 'none';
+    showToast('已收藏到笔记');
+  } catch (e) {
+    alert('收藏失败：' + e.message);
+  }
+}
+
+function showToast(msg) {
+  let toast = document.getElementById('toast');
+  if (!toast) {
+    toast = document.createElement('div');
+    toast.id = 'toast';
+    toast.className = 'toast';
+    document.body.appendChild(toast);
+  }
+  toast.textContent = msg;
+  toast.classList.add('show');
+  setTimeout(() => toast.classList.remove('show'), 2000);
 }
 
 // 页面加载后初始化
