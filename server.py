@@ -539,9 +539,7 @@ def update_note(note_id):
     if not note:
         abort(404)
 
-    title = (body.get("title") or "").strip()
-    if title:
-        note["title"] = title
+    note["title"] = (body.get("title") or "").strip()
     note["content"] = content
     note["updated_at"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     save_notes(data)
