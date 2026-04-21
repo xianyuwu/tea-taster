@@ -160,7 +160,7 @@ OPENAI_API_KEY=sk-xxxxxxxxxxxxxxxx
 
 ## 🏗️ 系统架构
 
-![architecture](/Users/rainwu/软件开发/岩茶评分系统/screenshots/architecture.png)
+![管理后台](screenshots/architecture.png)
 
 ## 📁 项目结构
 
