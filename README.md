@@ -23,9 +23,15 @@
 
 ![品鉴页面](screenshots/index.png)
 
+![管理后台](screenshots/comparison-table.png)
+
+![管理后台](screenshots/ranked-list.png)
+
 ![管理后台](screenshots/ai-bot.png)
 
 ![管理后台](screenshots/ai-report.png)
+
+![管理后台](screenshots/note.png)
 
 **管理后台**（`/admin`）— 大模型配置、提示词编辑、数据管理、评分维度配置
 
@@ -156,7 +162,7 @@ OPENAI_API_KEY=sk-xxxxxxxxxxxxxxxx
 
 ## 🏗️ 系统架构
 
-![系统架构](screenshots/architecture.png)
+![architecture](/Users/rainwu/软件开发/岩茶评分系统/screenshots/architecture.png)
 
 ## 📁 项目结构
 
