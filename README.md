@@ -27,8 +27,6 @@
 
 ![管理后台](screenshots/ranked-list.png)
 
-![管理后台](screenshots/ai-bot.png)
-
 ![管理后台](screenshots/ai-report.png)
 
 ![管理后台](screenshots/note.png)
