@@ -10,7 +10,7 @@
     background: #f5f0eb;
     color: #3a2e2a;
     padding: 16px;
-    max-width: 960px;
+    max-width: 1200px;
     margin: 0 auto;
   }
   h1 {
@@ -268,6 +268,121 @@
     color: #8a7060;
     margin-top: 2px;
   }
+  .tea-card-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    margin-top: 4px;
+  }
+  .tea-meta-pill {
+    display: inline-flex;
+    align-items: center;
+    font-size: 0.75rem;
+    line-height: 1.3;
+    padding: 2px 8px;
+    border-radius: 10px;
+    background: #f0e6d9;
+    color: #6d5a4a;
+  }
+  .tea-meta-pill b {
+    font-weight: 600;
+    color: #5c3a21;
+    margin-right: 2px;
+  }
+  .info-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 10px;
+    table-layout: fixed;
+  }
+  .info-row td {
+    background: #f7f0e8 !important;
+    font-size: 0.82rem;
+    text-align: center;
+    word-break: break-word;
+  }
+  .info-row td:first-child {
+    color: #7a6a5a;
+    font-weight: 600;
+  }
+  .info-row td:not(:first-child) {
+    color: #5c3a21;
+  }
+  .info-row td.left-align {
+    text-align: left;
+  }
+  .score-sep td {
+    border-top: 2px solid #8b5e3c;
+  }
+  .th-name-hover {
+    cursor: default;
+  }
+  .tea-card-name-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .tea-edit-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 0.85rem;
+    color: #a08a78;
+    padding: 2px 4px;
+    border-radius: 4px;
+    transition: color 0.2s, background 0.2s;
+    flex-shrink: 0;
+  }
+  .tea-edit-btn:hover {
+    color: #8b5e3c;
+    background: #f0e6d9;
+  }
+  .tea-edit-dialog {
+    background: #fff;
+    border-radius: 14px;
+    padding: 20px;
+    width: 360px;
+    max-width: 88vw;
+    box-shadow: 0 8px 30px rgba(92,58,33,0.18);
+    text-align: left;
+  }
+  .tea-edit-dialog h3 {
+    margin: 0 0 14px 0;
+    font-size: 1rem;
+    color: #3a2e2a;
+  }
+  .tea-edit-dialog .tea-edit-row {
+    margin-bottom: 10px;
+  }
+  .tea-edit-dialog .tea-edit-row label {
+    display: block;
+    font-size: 0.8rem;
+    color: #8a7060;
+    margin-bottom: 3px;
+  }
+  .tea-edit-dialog .tea-edit-row input {
+    width: 100%;
+    padding: 6px 10px;
+    border: 1.5px solid #d4c4b0;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    color: #3a2e2a;
+    outline: none;
+    box-sizing: border-box;
+    transition: border-color 0.2s;
+  }
+  .tea-edit-dialog .tea-edit-row input::placeholder {
+    color: #c4b0a0;
+  }
+  .tea-edit-dialog .tea-edit-row input:focus {
+    border-color: #8b5e3c;
+  }
+  .tea-edit-dialog .tea-edit-btns {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    margin-top: 16px;
+  }
   .rating-row {
     display: flex;
     align-items: center;
@@ -351,6 +466,7 @@
     font-weight: 600;
     position: sticky;
     top: 0;
+    z-index: 1;
   }
   th:first-child {
     text-align: left;
@@ -478,19 +594,111 @@
   }
 
   /* 笔记 */
-  .notes-header {
+  /* 搜索和筛选栏 */
+  .notes-toolbar {
     display: flex;
-    justify-content: flex-end;
-    margin-bottom: 14px;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+  .notes-search {
+    flex: 1;
+    min-width: 160px;
+    padding: 10px 14px;
+    border: 2px solid #d4c4b0;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    outline: none;
+    transition: border-color 0.2s;
+    background: #fff;
+  }
+  .notes-search:focus { border-color: #8b5e3c; }
+  .notes-search::placeholder { color: #c4b0a0; }
+  .notes-tag-filter {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 12px;
+    min-height: 0;
+  }
+  .notes-tag-filter:empty { margin-bottom: 0; }
+  .tag-filter-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: #f0e6d9;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: #5c3a21;
+    cursor: pointer;
+    border: 2px solid transparent;
+    transition: all 0.15s;
+  }
+  .tag-filter-pill:hover { background: #e8ddd0; }
+  .tag-filter-pill.active {
+    background: #8b5e3c;
+    color: #fff;
+    border-color: #8b5e3c;
+  }
+  /* 笔记网格 */
+  #notesList {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+  .notes-pagination {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 16px;
+    padding: 10px 0;
+  }
+  .notes-pagination button {
+    padding: 6px 16px;
+    border: 2px solid #d4c4b0;
+    background: #fff;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    color: #5c3a21;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.15s;
+  }
+  .notes-pagination button:hover:not(:disabled) {
+    border-color: #8b5e3c;
+    color: #8b5e3c;
+  }
+  .notes-pagination button:disabled {
+    opacity: 0.4;
+    cursor: default;
+  }
+  .notes-pagination select {
+    padding: 6px 10px;
+    border: 2px solid #d4c4b0;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    color: #5c3a21;
+    background: #fff;
+    outline: none;
+    cursor: pointer;
+  }
+  .notes-pagination select:focus { border-color: #8b5e3c; }
+  .notes-pagination .page-info {
+    font-size: 0.85rem;
+    color: #8a7060;
   }
   /* 彩色卡片调色板 */
   .note-card {
-    border-radius: 12px;
-    padding: 16px 18px;
-    margin-bottom: 14px;
+    border-radius: 10px;
+    padding: 10px 14px;
     box-shadow: 0 2px 8px rgba(92,58,33,0.08);
     border-left: 4px solid transparent;
     transition: transform 0.15s, box-shadow 0.15s;
+    display: flex;
+    flex-direction: column;
   }
   .note-card:hover {
     transform: translateY(-1px);
@@ -505,18 +713,18 @@
   .note-card.color-6 { background: #ebf4ff; border-left-color: #6b8dd6; }
   .note-card.color-7 { background: #f5f0eb; border-left-color: #8b5e3c; }
   .note-card-title {
-    font-size: 1.05rem;
+    font-size: 0.95rem;
     font-weight: 700;
     color: #3a2e2a;
-    margin-bottom: 6px;
-    line-height: 1.4;
+    margin-bottom: 4px;
+    line-height: 1.3;
   }
   .note-meta {
     display: flex;
     align-items: center;
-    gap: 8px;
-    margin-bottom: 8px;
-    font-size: 12px;
+    gap: 6px;
+    margin-bottom: 4px;
+    font-size: 11px;
     color: #8a7060;
   }
   .note-source-tag {
@@ -530,12 +738,59 @@
     color: #5c3a21;
     font-weight: 600;
   }
+  .note-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 3px;
+    margin-bottom: 3px;
+  }
+  .note-tag-pill {
+    display: inline-flex;
+    align-items: center;
+    background: rgba(139, 94, 60, 0.12);
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: #8b5e3c;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .note-tag-pill:hover { background: rgba(139, 94, 60, 0.22); }
   .note-content {
     color: #3a2e2a;
-    font-size: 14px;
-    line-height: 1.7;
+    font-size: 13px;
+    line-height: 1.5;
     word-break: break-word;
+    position: relative;
+    overflow: hidden;
+    max-height: 60px;
+    transition: max-height 0.3s ease;
   }
+  .note-content.expanded {
+    max-height: none;
+  }
+  .note-content:not(.expanded)::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 30px;
+    background: linear-gradient(transparent, rgba(255,255,255,0.45));
+    pointer-events: none;
+  }
+  .note-expand-btn {
+    padding: 2px 8px;
+    border: none;
+    background: transparent;
+    color: #8b5e3c;
+    font-size: 0.75rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: color 0.15s;
+  }
+  .note-expand-btn:hover { color: #6d4a2f; }
   .note-content p { margin: 0 0 8px 0; }
   .note-content p:last-child { margin-bottom: 0; }
   .note-content h1, .note-content h2, .note-content h3,
@@ -578,9 +833,10 @@
   .note-content em { font-style: italic; }
   .note-actions {
     display: flex;
-    justify-content: flex-end;
+    justify-content: center;
+    align-items: center;
     gap: 8px;
-    margin-top: 10px;
+    margin-top: 2px;
   }
   .note-action-btn {
     padding: 4px 10px;
@@ -652,6 +908,46 @@
     background: #faf6f1;
   }
   .note-title-input::placeholder { color: #c4b0a0; font-weight: 400; }
+  .note-editor-tags {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 20px;
+    border-bottom: 1px solid #e8ddd0;
+    background: #faf6f1;
+    flex-wrap: wrap;
+    flex-shrink: 0;
+  }
+  .note-editor-tags-input {
+    flex: 1;
+    min-width: 80px;
+    border: none;
+    background: none;
+    font-size: 0.85rem;
+    outline: none;
+    color: #3a2e2a;
+    padding: 4px 0;
+  }
+  .note-editor-tags-input::placeholder { color: #c4b0a0; }
+  .editor-tag-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    background: #f0e6d9;
+    padding: 3px 8px;
+    border-radius: 12px;
+    font-size: 0.78rem;
+    font-weight: 500;
+    color: #5c3a21;
+  }
+  .editor-tag-remove {
+    cursor: pointer;
+    font-size: 0.7rem;
+    margin-left: 2px;
+    opacity: 0.6;
+    transition: opacity 0.15s;
+  }
+  .editor-tag-remove:hover { opacity: 1; }
 
   /* 工具栏 */
   .note-toolbar {
@@ -755,20 +1051,71 @@
     background: #faf6f1;
   }
 
-  /* AI 对话收藏按钮 */
-  .chat-collect-btn {
-    display: none;
-    float: right;
-    padding: 2px 6px;
+
+  /* 选区收藏浮动按钮 */
+  .collect-float-btn {
+    position: fixed;
+    z-index: 1100;
+    padding: 5px 12px;
+    background: #8b5e3c;
+    color: #fff;
     border: none;
-    background: none;
+    border-radius: 6px;
+    font-size: 13px;
     cursor: pointer;
-    font-size: 0.85rem;
-    opacity: 0.5;
-    transition: opacity 0.15s;
+    box-shadow: 0 3px 10px rgba(92,58,33,0.25);
+    display: none;
+    white-space: nowrap;
+    transition: background 0.15s;
   }
-  .chat-collect-btn:hover { opacity: 1; }
-  .chat-collect-btn.show { display: inline-block; }
+  .collect-float-btn:hover { background: #6d4a2f; }
+  .collect-float-btn,
+  .collect-panel { user-select: none; -webkit-user-select: none; }
+
+  /* 收藏选择面板 */
+  .collect-panel {
+    position: fixed;
+    z-index: 1101;
+    width: 260px;
+    max-height: 320px;
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 6px 24px rgba(92,58,33,0.2);
+    overflow-y: auto;
+    display: none;
+  }
+  .collect-panel-header {
+    padding: 10px 14px;
+    font-size: 13px;
+    font-weight: 700;
+    color: #3a2e2a;
+    border-bottom: 1px solid #e8ddd0;
+  }
+  .collect-panel-item {
+    padding: 9px 14px;
+    font-size: 13px;
+    color: #3a2e2a;
+    cursor: pointer;
+    border-bottom: 1px solid #f0e6d9;
+    transition: background 0.12s;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .collect-panel-item:hover { background: #faf6f1; }
+  .collect-panel-item:last-child { border-bottom: none; }
+  .collect-panel-item.create {
+    color: #8b5e3c;
+    font-weight: 600;
+  }
+  .collect-panel-item .item-sub {
+    font-size: 11px;
+    color: #a08a78;
+    margin-top: 2px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
 
   /* 笔记 Toast */
   .toast {
@@ -776,16 +1123,18 @@
     top: 20px;
     left: 50%;
     transform: translateX(-50%);
-    background: var(--color-primary);
+    background: rgba(58,46,42,0.88);
     color: #fff;
-    padding: 8px 20px;
+    padding: 10px 24px;
     border-radius: 20px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.25);
     font-size: var(--font-size-sm);
     font-weight: 600;
     z-index: 200;
     opacity: 0;
     transition: opacity 0.3s;
     pointer-events: none;
+    backdrop-filter: blur(4px);
   }
   .toast.show { opacity: 1; }
 
@@ -1237,6 +1586,28 @@
     top: 0;
     bottom: 0;
   }
+  .ai-chat-resize-handle-top {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: transparent;
+    cursor: ns-resize;
+    z-index: 1;
+    transition: background 0.2s;
+  }
+  .ai-chat-resize-handle-top:hover {
+    background: rgba(139, 94, 60, 0.2);
+  }
+  .ai-chat-resize-handle-top::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: -8px;
+    bottom: -8px;
+  }
   .ai-chat-content {
     flex: 1;
     display: flex;
@@ -1275,6 +1646,22 @@
     transition: background 0.2s;
   }
   .ai-chat-close:hover { background: rgba(255,255,255,0.3); }
+  .ai-chat-maximize {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    border: none;
+    background: rgba(255,255,255,0.2);
+    color: #fff;
+    font-size: 1rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s;
+    margin-right: 0;
+  }
+  .ai-chat-maximize:hover { background: rgba(255,255,255,0.3); }
   .ai-chat-body {
     flex: 1;
     overflow-y: auto;
@@ -1340,6 +1727,14 @@
   .chat-bubble p { margin: 6px 0; }
   .chat-bubble p:first-child { margin-top: 0; }
   .chat-bubble p:last-child { margin-bottom: 0; }
+  .collect-hint {
+    font-size: 11px;
+    color: #c4b0a0;
+    margin-top: 10px;
+    padding-top: 8px;
+    border-top: 1px solid #f0e6d9;
+    user-select: none;
+  }
   .chat-bubble ul, .chat-bubble ol { padding-left: 16px; margin: 6px 0; }
 
   .ai-chat-footer {
@@ -1410,7 +1805,11 @@
       min-height: unset;
       max-height: unset;
     }
-    .ai-chat-resize-handle {
+    .ai-chat-resize-handle,
+    .ai-chat-resize-handle-top {
+      display: none;
+    }
+    .ai-chat-maximize {
       display: none;
     }
     .ai-fab {
@@ -1554,9 +1953,11 @@
 
 <!-- 品茶笔记视图 -->
 <div id="viewNotes" style="display:none">
-  <div class="notes-header">
+  <div class="notes-toolbar">
+    <input type="text" class="notes-search" id="notesSearch" placeholder="🔍 搜索笔记..." oninput="filterNotes()">
     <button class="btn btn-primary" onclick="showNoteEditor()">＋ 新增笔记</button>
   </div>
+  <div class="notes-tag-filter" id="notesTagFilter"></div>
   <div id="notesList"></div>
 </div>
 
@@ -1567,11 +1968,15 @@
 </button>
 
 <div class="ai-chat-panel" id="aiChatPanel">
+  <div class="ai-chat-resize-handle-top" id="aiChatResizeHandleTop"></div>
   <div class="ai-chat-resize-handle" id="aiChatResizeHandle"></div>
   <div class="ai-chat-content">
     <div class="ai-chat-header">
       <div class="ai-chat-title">🤖 AI 品鉴助手</div>
-      <button class="ai-chat-close" onclick="toggleChatPanel()">✕</button>
+      <div style="display:flex;align-items:center;gap:6px;">
+        <button class="ai-chat-maximize" id="aiChatMaxBtn" onclick="toggleChatMaximize()">⤢</button>
+        <button class="ai-chat-close" onclick="toggleChatPanel()">✕</button>
+      </div>
     </div>
     <div class="ai-chat-body" id="aiChatBody">
       <div class="ai-chat-empty" id="aiChatEmpty">
@@ -1594,6 +1999,15 @@
 <!-- Hidden file input for photo upload -->
 <input type="file" id="photoInput" accept="image/*" capture="environment" style="display:none" onchange="handlePhoto(event)">
 
+<!-- 选区收藏浮动按钮 -->
+<button class="collect-float-btn" id="collectFloatBtn">📌 收藏到笔记</button>
+<!-- 收藏选择面板 -->
+<div class="collect-panel" id="collectPanel">
+  <div class="collect-panel-header">收藏到笔记</div>
+  <div class="collect-panel-item create" onclick="collectToNewNote()">＋ 新建笔记</div>
+  <div id="collectNoteList"></div>
+</div>
+
 <!-- 删除确认弹窗 -->
 <div class="modal-mask" id="deleteModal" style="display:none">
   <div class="modal-box">
@@ -1607,6 +2021,49 @@
   </div>
 </div>
 
+<!-- 编辑茶样弹窗 -->
+<div class="modal-mask" id="teaEditModal" style="display:none">
+  <div class="tea-edit-dialog">
+    <h3 id="teaEditDialogTitle">✎ 编辑茶样信息</h3>
+    <div class="tea-edit-row">
+      <label>茶名</label>
+      <input type="text" id="editTeaName">
+    </div>
+    <div class="tea-edit-row">
+      <label>品种</label>
+      <input type="text" id="editTeaVariety" placeholder="如：肉桂、水仙">
+    </div>
+    <div class="tea-edit-row">
+      <label>等级</label>
+      <input type="text" id="editTeaGrade" placeholder="如：特级、一级">
+    </div>
+    <div class="tea-edit-row">
+      <label>产地</label>
+      <input type="text" id="editTeaOrigin" placeholder="如：牛栏坑、慧苑坑">
+    </div>
+    <div class="tea-edit-row">
+      <label>生产企业</label>
+      <input type="text" id="editTeaProducer" placeholder="如：XX茶业有限公司">
+    </div>
+    <div class="tea-edit-row">
+      <label>价格</label>
+      <input type="text" id="editTeaPrice" placeholder="如：200元/盒">
+    </div>
+    <div class="tea-edit-row">
+      <label>品牌</label>
+      <input type="text" id="editTeaBrand" placeholder="如：XX茶业">
+    </div>
+    <div class="tea-edit-row">
+      <label>净重</label>
+      <input type="text" id="editTeaWeight" placeholder="如：8.3、250">
+    </div>
+    <div class="tea-edit-btns">
+      <button class="btn btn-cancel" onclick="closeTeaEditor()">取消</button>
+      <button class="btn btn-primary" onclick="saveTeaEdit()">保存</button>
+    </div>
+  </div>
+</div>
+
 <!-- 笔记编辑弹窗 -->
 <div class="modal-mask" id="noteEditorModal" style="display:none">
   <div class="note-editor-dialog">
@@ -1615,6 +2072,11 @@
       <button class="note-editor-close" onclick="closeNoteEditor()">✕</button>
     </div>
     <input type="text" id="noteEditorNoteTitle" class="note-title-input" placeholder="笔记标题（可选）">
+    <div class="note-editor-tags">
+      <span style="font-size:0.85rem;color:#8a7060;flex-shrink:0">🏷</span>
+      <div id="noteEditorTagPills" style="display:flex;gap:4px;flex-wrap:wrap"></div>
+      <input type="text" class="note-editor-tags-input" id="noteEditorTagInput" placeholder="输入标签后回车添加…" onkeydown="handleEditorTagKey(event)">
+    </div>
     <div class="note-toolbar">
       <button class="note-toolbar-btn" onclick="insertMd('bold')" title="加粗"><b>B</b></button>
       <button class="note-toolbar-btn" onclick="insertMd('italic')" title="斜体"><i>I</i></button>
@@ -1689,26 +2151,25 @@ async function loadTeas() {
 
 // ── 茶样操作 ─────────────────────────────────────────────
 
-async function addTea() {
+function addTea() {
   const input = document.getElementById('teaNameInput');
   const name = input.value.trim();
   if (!name) return;
-  try {
-    await api('/api/teas', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name }),
-    });
-    input.value = '';
-    await loadTeas();
-    currentCardIndex = teas.length - 1;
-    // 标记报告过期
-    if (reportMeta) reportMeta.stale = true;
-    render();
-    renderReport();
-  } catch (e) {
-    showToast(e.message);
-  }
+  input.value = '';
+  editingTeaId = null;
+  teaEditorMode = 'add';
+  document.getElementById('teaEditDialogTitle').textContent = '➕ 添加茶样';
+  document.getElementById('editTeaName').value = name;
+  document.getElementById('editTeaVariety').value = '';
+  document.getElementById('editTeaGrade').value = '';
+  document.getElementById('editTeaOrigin').value = '';
+  document.getElementById('editTeaProducer').value = '';
+  document.getElementById('editTeaPrice').value = '';
+  document.getElementById('editTeaBrand').value = '';
+  document.getElementById('editTeaWeight').value = '';
+  const modal = document.getElementById('teaEditModal');
+  modal.style.display = 'flex';
+  requestAnimationFrame(() => modal.classList.add('show'));
 }
 
 let pendingDeleteId = null;
@@ -1738,6 +2199,75 @@ async function confirmDelete() {
   // 标记报告过期
   if (reportMeta) reportMeta.stale = true;
   await loadTeas();
+}
+
+let editingTeaId = null;
+let teaEditorMode = 'edit'; // 'add' | 'edit'
+
+function showTeaEditor(id) {
+  const tea = teas.find(t => t.id === id);
+  if (!tea) return;
+  editingTeaId = id;
+  teaEditorMode = 'edit';
+  document.getElementById('teaEditDialogTitle').textContent = '✎ 编辑茶样信息';
+  document.getElementById('editTeaName').value = tea.name || '';
+  document.getElementById('editTeaVariety').value = tea.variety || '';
+  document.getElementById('editTeaGrade').value = tea.grade || '';
+  document.getElementById('editTeaOrigin').value = tea.origin || '';
+  document.getElementById('editTeaProducer').value = tea.producer || '';
+  document.getElementById('editTeaPrice').value = tea.price || '';
+  document.getElementById('editTeaBrand').value = tea.brand || '';
+  document.getElementById('editTeaWeight').value = tea.weight || '';
+  const modal = document.getElementById('teaEditModal');
+  modal.style.display = 'flex';
+  requestAnimationFrame(() => modal.classList.add('show'));
+}
+
+function closeTeaEditor() {
+  const modal = document.getElementById('teaEditModal');
+  modal.classList.remove('show');
+  setTimeout(() => modal.style.display = 'none', 200);
+  editingTeaId = null;
+}
+
+async function saveTeaEdit() {
+  const body = {
+    name: document.getElementById('editTeaName').value.trim(),
+    variety: document.getElementById('editTeaVariety').value.trim(),
+    grade: document.getElementById('editTeaGrade').value.trim(),
+    origin: document.getElementById('editTeaOrigin').value.trim(),
+    producer: document.getElementById('editTeaProducer').value.trim(),
+    price: document.getElementById('editTeaPrice').value.trim(),
+    brand: document.getElementById('editTeaBrand').value.trim(),
+    weight: document.getElementById('editTeaWeight').value.trim(),
+  };
+  if (!body.name) { showToast('茶名不能为空'); return; }
+  try {
+    if (teaEditorMode === 'add') {
+      await api('/api/teas', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      });
+    } else {
+      if (editingTeaId === null) return;
+      await api(`/api/teas/${editingTeaId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      });
+    }
+    closeTeaEditor();
+    if (reportMeta) reportMeta.stale = true;
+    await loadTeas();
+    if (teaEditorMode === 'add' || teaEditorMode === 'add') {
+      currentCardIndex = teas.length - 1;
+    }
+    render();
+    renderReport();
+  } catch (e) {
+    showToast(e.message);
+  }
 }
 
 async function setScore(id, key, val) {
@@ -1775,6 +2305,16 @@ function getTotal(tea) {
 
 function photoUrl(tea) {
   return tea.photo ? `/data/photos/${tea.photo}` : '';
+}
+
+function teaMetaHtml(t) {
+  const labels = { variety: '品种', grade: '等级', origin: '产地', producer: '企业', price: '价格', brand: '品牌', weight: '净重' };
+  let html = '';
+  for (const [key, label] of Object.entries(labels)) {
+    const val = (t[key] || '').trim();
+    if (val) html += `<span class="tea-meta-pill"><b>${label}：</b>${val}</span>`;
+  }
+  return html;
 }
 
 // ── 图片上传 ─────────────────────────────────────────────
@@ -1898,13 +2438,38 @@ function render() {
         ${photoPart}
       </div>
       <div class="tea-card-info">
-        <div class="tea-card-name">🍃 ${t.name}</div>
+        <div class="tea-card-name-row">
+          <div class="tea-card-name">🍃 ${t.name}</div>
+          <button class="tea-edit-btn" onclick="showTeaEditor(${t.id})" title="编辑茶样信息">✎</button>
+        </div>
+        <div class="tea-card-meta">${teaMetaHtml(t)}</div>
         <div class="tea-card-score-summary">总分：${getTotal(t)} / ${DIMENSIONS.length * 5}（${currentCardIndex + 1} / ${teas.length}）</div>
       </div>
     </div>
     ${rows}
     <textarea class="note-input" id="note-${t.id}" placeholder="备注口感特点，如：花香明显、有奶油感…" oninput="setNote(${t.id}, this.value)">${noteVal}</textarea>
   </div>`;
+}
+
+function showNamePreview(e, el) {
+  const url = el.dataset.photo;
+  if (!url) return;
+  let preview = document.getElementById('globalNamePreview');
+  if (!preview) {
+    preview = document.createElement('div');
+    preview.id = 'globalNamePreview';
+    preview.style.cssText = 'position:fixed;width:180px;height:180px;border-radius:10px;overflow:hidden;box-shadow:0 6px 24px rgba(92,58,33,0.25);border:3px solid #fff;z-index:9999;background:#fff;pointer-events:none;display:none;';
+    document.body.appendChild(preview);
+  }
+  preview.innerHTML = `<img src="${url}" style="width:100%;height:100%;object-fit:cover;">`;
+  const rect = el.getBoundingClientRect();
+  preview.style.display = 'block';
+  preview.style.top = (rect.bottom + 4) + 'px';
+  preview.style.left = Math.max(4, rect.left + rect.width / 2 - 90) + 'px';
+}
+function hideNamePreview(el) {
+  const preview = document.getElementById('globalNamePreview');
+  if (preview) preview.style.display = 'none';
 }
 
 function renderTable() {
@@ -1919,16 +2484,78 @@ function renderTable() {
   });
   const maxTotal = Math.max(...teas.map(t => getTotal(t)));
 
+  const metaFields = [
+    { key: 'variety', label: '品种' },
+    { key: 'grade', label: '等级' },
+    { key: 'origin', label: '产地' },
+    { key: 'producer', label: '生产企业' },
+    { key: 'price', label: '价格' },
+    { key: 'brand', label: '品牌' },
+    { key: 'weight', label: '净重' },
+  ];
+
+  function parseNum(s) {
+    const m = (s || '').match(/[\d.]+/);
+    return m ? parseFloat(m[0]) : NaN;
+  }
+  function addUnit(val, unit) {
+    if (!val || val === '-') return val;
+    return /^[\d.]+$/.test(val.trim()) ? val.trim() + unit : val;
+  }
+
+  const priceNums = teas.map(t => parseNum(t.price));
+  const weightNums = teas.map(t => parseNum(t.weight));
+  const unitPrices = teas.map((t, i) => {
+    const p = priceNums[i], w = weightNums[i];
+    return (!isNaN(p) && !isNaN(w) && w > 0) ? p / w : NaN;
+  });
+  const validPrices = unitPrices.filter(v => !isNaN(v));
+  const hasUnitPrice = validPrices.length >= 2;
+
   let html = '<table><thead><tr><th>维度</th>';
   teas.forEach(t => {
     const url = photoUrl(t);
-    const imgHtml = url ? `<img src="${url}" alt="${t.name}">` : '';
-    html += `<th><div class="th-tea">${imgHtml}<span>${t.name}</span></div></th>`;
+    const previewHtml = url
+      ? `<div class="th-name-hover" data-photo="${url}" onmouseenter="showNamePreview(event,this)" onmouseleave="hideNamePreview(this)">${t.name}</div>`
+      : t.name;
+    html += `<th>${previewHtml}</th>`;
   });
   html += '</tr></thead><tbody>';
 
-  DIMENSIONS.forEach(d => {
-    html += `<tr><td>${d.name}</td>`;
+  metaFields.forEach(f => {
+    const isLeft = f.key === 'producer';
+    const unit = f.key === 'price' ? '元' : f.key === 'weight' ? 'g' : '';
+    html += `<tr class="info-row"><td>${f.label}</td>`;
+    teas.forEach(t => {
+      const raw = (t[f.key] || '').trim();
+      const display = unit ? addUnit(raw || '-', unit) : (raw || '-');
+      html += `<td${isLeft ? ' class="left-align"' : ''}>${display}</td>`;
+    });
+    html += '</tr>';
+  });
+
+  if (hasUnitPrice) {
+    const minP = Math.min(...validPrices);
+    const maxP = Math.max(...validPrices);
+    const range = maxP - minP || 1;
+    html += '<tr class="info-row"><td>单价</td>';
+    unitPrices.forEach(up => {
+      if (isNaN(up)) {
+        html += '<td>-</td>';
+      } else {
+        const ratio = (up - minP) / range;
+        const r = Math.round(180 + 75 * ratio);
+        const g = Math.round(200 - 70 * ratio);
+        const b = Math.round(120 - 60 * ratio);
+        const bg = `rgba(${r},${g},${b},0.18)`;
+        html += `<td style="background:${bg} !important;font-weight:600">${up.toFixed(1)}元/克</td>`;
+      }
+    });
+    html += '</tr>';
+  }
+
+  DIMENSIONS.forEach((d, i) => {
+    html += `<tr${i === 0 ? ' class="score-sep"' : ''}><td>${d.name}</td>`;
     teas.forEach(t => {
       const v = t.scores[d.key];
       const isBest = v > 0 && v === maxScores[d.key] && teas.filter(x => x.scores[d.key] === v).length < teas.length;
@@ -1988,6 +2615,7 @@ function renderRank() {
       ${photoHtml}
       <div class="rank-info">
         <div class="rank-tea-name">${t.name}</div>
+        <div class="tea-card-meta">${teaMetaHtml(t)}</div>
         <div class="rank-tea-score">总分 ${tot} / ${maxPossible}（${pct}%）</div>
         <div class="rank-bar-bg"><div class="rank-bar" style="width:${pct}%"></div></div>
       </div>
@@ -2008,19 +2636,6 @@ function renderRank() {
   }
 
   wrap.innerHTML = html;
-}
-
-function showToast(msg) {
-  const el = document.createElement('div');
-  el.textContent = msg;
-  Object.assign(el.style, {
-    position:'fixed', top:'20px', left:'50%', transform:'translateX(-50%)',
-    background:'#5c3a21', color:'#fff', padding:'10px 20px', borderRadius:'8px',
-    fontSize:'0.9rem', zIndex:'999', opacity:'0', transition:'opacity 0.3s'
-  });
-  document.body.appendChild(el);
-  requestAnimationFrame(() => el.style.opacity = '1');
-  setTimeout(() => { el.style.opacity = '0'; setTimeout(() => el.remove(), 300); }, 1800);
 }
 
 // ── AI 分析 ──────────────────────────────────────────────
@@ -2342,12 +2957,10 @@ function appendChatMessage(role, content, isStreaming = false) {
   if (empty) empty.style.display = 'none';
 
   const avatar = role === 'user' ? '👤' : '🤖';
-  const collectBtn = (role === 'assistant' && !isStreaming)
-    ? '<button class="chat-collect-btn show" onclick="collectNote(this)" title="收藏到笔记">📌</button>'
-    : '';
+  const hint = (role === 'assistant' && !isStreaming) ? '<div class="collect-hint">💡 选中文字可收藏到笔记</div>' : '';
   const msgHtml = `<div class="chat-msg ${role}">
     <div class="chat-avatar">${avatar}</div>
-    <div class="chat-bubble">${role === 'user' ? escapeHtml(content) : marked.parse(content)}${isStreaming ? '<span class="ai-cursor"></span>' : ''}${collectBtn}</div>
+    <div class="chat-bubble">${role === 'user' ? escapeHtml(content) : marked.parse(content)}${isStreaming ? '<span class="ai-cursor"></span>' : ''}${hint}</div>
   </div>`;
 
   body.insertAdjacentHTML('beforeend', msgHtml);
@@ -2465,10 +3078,10 @@ async function sendChat() {
 
     // 完成，保存助手回复
     chatHistory.push({ role: 'assistant', content: fullText });
-    // 移除光标，加收藏按钮
+    // 移除光标，渲染最终内容
     const lastBubble = document.querySelector('#aiChatBody .chat-msg.assistant:last-child .chat-bubble');
     if (lastBubble) {
-      lastBubble.innerHTML = marked.parse(fullText) + '<button class="chat-collect-btn show" onclick="collectNote(this)" title="收藏到笔记">📌</button>';
+      lastBubble.innerHTML = marked.parse(fullText) + '<div class="collect-hint">💡 选中文字可收藏到笔记</div>';
     }
   } catch (e) {
     // 移除可能残留的思考占位
@@ -2544,6 +3157,57 @@ function initResizeHandle() {
   });
 }
 
+// ── 拖拽调整高度（向上拉伸） ──────────────────────────────
+
+function initResizeHandleTop() {
+  const handle = document.getElementById('aiChatResizeHandleTop');
+  const panel = document.getElementById('aiChatPanel');
+  let startY, startHeight, isDragging = false;
+
+  handle.addEventListener('mousedown', (e) => {
+    isDragging = true;
+    startY = e.clientY;
+    startHeight = panel.offsetHeight;
+    document.body.style.cursor = 'ns-resize';
+    document.body.style.userSelect = 'none';
+    e.preventDefault();
+  });
+
+  document.addEventListener('mousemove', (e) => {
+    if (!isDragging) return;
+    const deltaY = startY - e.clientY;  // 向上拖拽增加高度
+    const newHeight = Math.max(300, Math.min(window.innerHeight * 0.7, startHeight + deltaY));
+    panel.style.height = newHeight + 'px';
+  });
+
+  document.addEventListener('mouseup', () => {
+    if (isDragging) {
+      isDragging = false;
+      document.body.style.cursor = '';
+      document.body.style.userSelect = '';
+    }
+  });
+
+  // 触摸支持
+  handle.addEventListener('touchstart', (e) => {
+    isDragging = true;
+    startY = e.touches[0].clientY;
+    startHeight = panel.offsetHeight;
+    e.preventDefault();
+  }, { passive: false });
+
+  document.addEventListener('touchmove', (e) => {
+    if (!isDragging) return;
+    const deltaY = startY - e.touches[0].clientY;
+    const newHeight = Math.max(300, Math.min(window.innerHeight * 0.7, startHeight + deltaY));
+    panel.style.height = newHeight + 'px';
+  }, { passive: false });
+
+  document.addEventListener('touchend', () => {
+    isDragging = false;
+  });
+}
+
 // ── 顶层 Tab 切换 ──────────────────────────────────────────
 
 function switchTopTab(tab) {
@@ -2551,34 +3215,157 @@ function switchTopTab(tab) {
   document.querySelector(`.top-tab[onclick*="${tab}"]`).classList.add('active');
   document.getElementById('viewTasting').style.display = tab === 'tasting' ? '' : 'none';
   document.getElementById('viewNotes').style.display = tab === 'notes' ? '' : 'none';
-  if (tab === 'notes') renderNotes();
+  if (tab === 'notes') {
+    activeTagFilter = null;
+    notesPage = 1;
+    const searchEl = document.getElementById('notesSearch');
+    if (searchEl) searchEl.value = '';
+    renderNotes();
+  }
 }
 
 // ── 笔记管理 ──────────────────────────────────────────────
 
+let activeTagFilter = null;
+let editingNoteTags = [];
+let notesPage = 1;
+let notesPageSize = 10;
+
+function escAttr(s) {
+  return s.replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/'/g,'&#39;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function filterNotes() { notesPage = 1; renderNotes(); }
+
+function getAllTags() {
+  const tagSet = new Set();
+  notes.forEach(n => (n.tags || []).forEach(t => tagSet.add(t)));
+  return [...tagSet].sort();
+}
+
+function renderTagFilter() {
+  const container = document.getElementById('notesTagFilter');
+  if (!container) return;
+  const tags = getAllTags();
+  if (!tags.length) { container.innerHTML = ''; return; }
+  container.innerHTML = tags.map(t =>
+    `<span class="tag-filter-pill ${activeTagFilter === t ? 'active' : ''}" data-tag="${escAttr(t)}">${escHtml(t)}</span>`
+  ).join('');
+}
+
+function toggleTagFilter(tag) {
+  activeTagFilter = activeTagFilter === tag ? null : tag;
+  notesPage = 1;
+  renderNotes();
+}
+
+// 标签筛选条点击事件委托
+document.addEventListener('click', function(e) {
+  const pill = e.target.closest('.tag-filter-pill[data-tag]');
+  if (pill) { toggleTagFilter(pill.dataset.tag); return; }
+  const noteTag = e.target.closest('.note-tag-pill[data-tag]');
+  if (noteTag) { e.stopPropagation(); toggleTagFilter(noteTag.dataset.tag); }
+});
+
+function toggleNoteExpand(id) {
+  const contentEl = document.querySelector(`.note-content[data-note-id="${id}"]`);
+  const btnEl = document.querySelector(`.note-expand-btn[data-note-id="${id}"]`);
+  if (!contentEl) return;
+  if (contentEl.classList.contains('expanded')) {
+    contentEl.classList.remove('expanded');
+    if (btnEl) btnEl.textContent = '▼ 展开';
+  } else {
+    contentEl.classList.add('expanded');
+    if (btnEl) btnEl.textContent = '▲ 收起';
+  }
+}
+
 function renderNotes() {
   const list = document.getElementById('notesList');
-  if (!notes.length) {
-    list.innerHTML = '<div class="empty-hint">还没有笔记，点击上方按钮新增，或在 AI 对话中收藏</div>';
+  const query = (document.getElementById('notesSearch')?.value || '').trim().toLowerCase();
+
+  let filtered = [...notes];
+
+  // 标签筛选
+  if (activeTagFilter) {
+    filtered = filtered.filter(n => (n.tags || []).includes(activeTagFilter));
+  }
+
+  // 关键字搜索
+  if (query) {
+    filtered = filtered.filter(n =>
+      (n.title || '').toLowerCase().includes(query) ||
+      (n.content || '').toLowerCase().includes(query)
+    );
+  }
+
+  renderTagFilter();
+
+  if (!filtered.length) {
+    const reason = notes.length === 0
+      ? '还没有笔记，点击上方按钮新增，或在 AI 对话中收藏'
+      : '没有匹配的笔记';
+    list.innerHTML = `<div class="empty-hint">${reason}</div>`;
+    renderNotesPagination(0);
     return;
   }
-  const sorted = [...notes].reverse();
-  list.innerHTML = sorted.map((n, i) => {
-    const colorClass = 'color-' + (i % 8);
+
+  const allSorted = [...filtered].reverse();
+  const totalPages = Math.ceil(allSorted.length / notesPageSize);
+  if (notesPage > totalPages) notesPage = totalPages;
+  if (notesPage < 1) notesPage = 1;
+  const start = (notesPage - 1) * notesPageSize;
+  const display = allSorted.slice(start, start + notesPageSize);
+
+  list.innerHTML = display.map(n => {
+    const colorClass = 'color-' + (notes.indexOf(n) % 8);
     const sourceLabel = n.source === 'ai-chat'
       ? '<span class="note-source-tag">🤖 来自AI对话</span>'
       : '<span class="note-source-tag">✍️ 手动记录</span>';
     const titleHtml = n.title ? `<div class="note-card-title">${escHtml(n.title)}</div>` : '';
+    const tagsHtml = (n.tags || []).length
+      ? `<div class="note-tags">${(n.tags || []).map(t =>
+          `<span class="note-tag-pill" data-tag="${escAttr(t)}">${escHtml(t)}</span>`
+        ).join('')}</div>`
+      : '';
     return `<div class="note-card ${colorClass}">
       ${titleHtml}
       <div class="note-meta">${sourceLabel} <span>${n.updated_at || n.created_at}</span></div>
-      <div class="note-content">${marked.parse(n.content)}</div>
+      ${tagsHtml}
+      <div class="note-content" data-note-id="${n.id}">${marked.parse(n.content)}</div>
       <div class="note-actions">
-        <button class="note-action-btn" onclick="showNoteEditor(${n.id})">✎ 编辑</button>
-        <button class="note-action-btn danger" onclick="deleteNote(${n.id})">✕ 删除</button>
+        <div style="flex:1"></div>
+        <button class="note-expand-btn" data-note-id="${n.id}" onclick="toggleNoteExpand(${n.id})">▼ 展开</button>
+        <div style="flex:1;display:flex;justify-content:flex-end;gap:6px">
+          <button class="note-action-btn" onclick="showNoteEditor(${n.id})">✎ 编辑</button>
+          <button class="note-action-btn danger" onclick="deleteNote(${n.id})">✕ 删除</button>
+        </div>
       </div>
     </div>`;
   }).join('');
+
+  renderNotesPagination(allSorted.length);
+}
+
+function renderNotesPagination(total) {
+  let container = document.getElementById('notesPagination');
+  if (!container) {
+    container = document.createElement('div');
+    container.id = 'notesPagination';
+    container.className = 'notes-pagination';
+    document.getElementById('notesList').after(container);
+  }
+  if (total <= notesPageSize) { container.innerHTML = ''; return; }
+  const totalPages = Math.ceil(total / notesPageSize);
+  container.innerHTML = `
+    <button onclick="notesPage--;renderNotes()" ${notesPage <= 1 ? 'disabled' : ''}>上一页</button>
+    <span class="page-info">${notesPage} / ${totalPages} 页（共 ${total} 条）</span>
+    <button onclick="notesPage++;renderNotes()" ${notesPage >= totalPages ? 'disabled' : ''}>下一页</button>
+    <select onchange="notesPageSize=Number(this.value);notesPage=1;renderNotes()">
+      <option value="10" ${notesPageSize===10?'selected':''}>10条/页</option>
+      <option value="20" ${notesPageSize===20?'selected':''}>20条/页</option>
+      <option value="50" ${notesPageSize===50?'selected':''}>50条/页</option>
+    </select>`;
 }
 
 function escHtml(s) {
@@ -2598,15 +3385,43 @@ function showNoteEditor(id) {
     const note = notes.find(n => n.id === editingNoteId);
     titleInput.value = note ? (note.title || '') : '';
     textarea.value = note ? note.content : '';
+    editingNoteTags = note ? [...(note.tags || [])] : [];
   } else {
     titleEl.textContent = '📝 新增笔记';
     titleInput.value = '';
     textarea.value = '';
+    editingNoteTags = [];
   }
+  renderEditorTags();
   updateNotePreview();
   modal.style.display = '';
   modal.classList.add('show');
   setTimeout(() => textarea.focus(), 50);
+}
+
+function renderEditorTags() {
+  const container = document.getElementById('noteEditorTagPills');
+  container.innerHTML = editingNoteTags.map((t, i) =>
+    `<span class="editor-tag-pill">${escHtml(t)}<span class="editor-tag-remove" onclick="removeEditorTag(${i})">✕</span></span>`
+  ).join('');
+}
+
+function handleEditorTagKey(e) {
+  if (e.key === 'Enter' || e.key === ',') {
+    e.preventDefault();
+    const input = document.getElementById('noteEditorTagInput');
+    const tag = input.value.replace(/,/g, '').trim();
+    if (tag && !editingNoteTags.includes(tag)) {
+      editingNoteTags.push(tag);
+      renderEditorTags();
+    }
+    input.value = '';
+  }
+}
+
+function removeEditorTag(index) {
+  editingNoteTags.splice(index, 1);
+  renderEditorTags();
 }
 
 function closeNoteEditor() {
@@ -2614,7 +3429,7 @@ function closeNoteEditor() {
   modal.classList.remove('show');
   setTimeout(() => { modal.style.display = 'none'; }, 200);
   editingNoteId = null;
-  // 重置为编辑模式
+  editingNoteTags = [];
   switchNoteTab('edit');
 }
 
@@ -2630,7 +3445,7 @@ async function saveNote() {
       const updated = await api(`/api/notes/${editingNoteId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ title, content }),
+        body: JSON.stringify({ title, content, tags: editingNoteTags }),
       });
       const idx = notes.findIndex(n => n.id === editingNoteId);
       if (idx !== -1) notes[idx] = updated;
@@ -2638,7 +3453,7 @@ async function saveNote() {
       const note = await api('/api/notes', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ title, content, source: 'manual' }),
+        body: JSON.stringify({ title, content, source: 'manual', tags: editingNoteTags }),
       });
       notes.push(note);
     }
@@ -2724,22 +3539,113 @@ function insertMd(type) {
   updateNotePreview();
 }
 
-async function collectNote(btn) {
-  const bubble = btn.closest('.chat-bubble');
-  if (!bubble) return;
-  // 获取纯文本内容
-  const text = bubble.innerText.replace('📌', '').trim();
-  if (!text) return;
+// ── 选区收藏到笔记 ──────────────────────────────────────
 
+let collectSelectedText = '';
+
+// 用 mouseup + 定时器检测选区（兼容各浏览器）
+document.addEventListener('mouseup', function(e) {
+  // 点击浮动按钮或面板内部时不重新检测，避免面板刚弹出就被隐藏
+  const floatBtn = document.getElementById('collectFloatBtn');
+  const panel = document.getElementById('collectPanel');
+  if (floatBtn.contains(e.target) || panel.contains(e.target)) return;
+  setTimeout(checkChatSelection, 50);
+});
+
+// 触摸设备支持
+document.addEventListener('touchend', function() {
+  setTimeout(checkChatSelection, 100);
+});
+
+function checkChatSelection() {
+  const floatBtn = document.getElementById('collectFloatBtn');
+  const panel = document.getElementById('collectPanel');
+  panel.style.display = 'none';
+
+  const sel = window.getSelection();
+  const text = sel ? sel.toString().trim() : '';
+  if (!text) { floatBtn.style.display = 'none'; return; }
+
+  const chatBody = document.getElementById('aiChatBody');
+  if (!chatBody) return;
+
+  try {
+    const range = sel.getRangeAt(0);
+    if (!chatBody.contains(range.commonAncestorContainer)) {
+      floatBtn.style.display = 'none';
+      return;
+    }
+    collectSelectedText = text;
+    const rect = range.getBoundingClientRect();
+    floatBtn.style.display = 'block';
+    floatBtn.style.left = Math.max(4, rect.left + rect.width / 2 - 60) + 'px';
+    floatBtn.style.top = Math.max(4, rect.top - 38) + 'px';
+  } catch {
+    floatBtn.style.display = 'none';
+  }
+}
+
+// 点击浮动按钮 → 打开选择面板
+document.getElementById('collectFloatBtn').addEventListener('click', function() {
+  const btnRect = this.getBoundingClientRect();
+  this.style.display = 'none';
+  const panel = document.getElementById('collectPanel');
+  const listEl = document.getElementById('collectNoteList');
+
+  const sorted = [...notes].reverse().slice(0, 10);
+  listEl.innerHTML = sorted.map(n => {
+    const label = n.title || n.content.substring(0, 20).replace(/\n/g, ' ');
+    const sub = n.updated_at || n.created_at;
+    return `<div class="collect-panel-item" onclick="collectToExistingNote(${n.id})">
+      ${escHtml(label)}
+      <div class="item-sub">${sub}</div>
+    </div>`;
+  }).join('');
+
+  let top = btnRect.bottom + 4;
+  let left = btnRect.left;
+  if (left + 260 > window.innerWidth) left = window.innerWidth - 270;
+  if (top + 320 > window.innerHeight) top = btnRect.top - 320;
+  panel.style.left = left + 'px';
+  panel.style.top = top + 'px';
+  panel.style.display = 'block';
+});
+
+// 新建笔记
+async function collectToNewNote() {
+  if (!collectSelectedText) return;
+  document.getElementById('collectPanel').style.display = 'none';
   try {
     const note = await api('/api/notes', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ content: text, source: 'ai-chat' }),
+      body: JSON.stringify({ content: collectSelectedText, source: 'ai-chat' }),
     });
     notes.push(note);
-    btn.style.display = 'none';
-    showToast('已收藏到笔记');
+    collectSelectedText = '';
+    showToast('已新建笔记');
+  } catch (e) {
+    alert('收藏失败：' + e.message);
+  }
+}
+
+// 追加到已有笔记
+async function collectToExistingNote(noteId) {
+  if (!collectSelectedText) return;
+  document.getElementById('collectPanel').style.display = 'none';
+  const note = notes.find(n => n.id === noteId);
+  if (!note) return;
+  try {
+    const newContent = note.content + '\n\n' + collectSelectedText;
+    const updated = await api(`/api/notes/${noteId}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ title: note.title || '', content: newContent }),
+    });
+    const idx = notes.findIndex(n => n.id === noteId);
+    if (idx !== -1) notes[idx] = updated;
+    collectSelectedText = '';
+    showToast('已追加到笔记');
   } catch (e) {
     alert('收藏失败：' + e.message);
   }
@@ -2758,8 +3664,31 @@ function showToast(msg) {
   setTimeout(() => toast.classList.remove('show'), 2000);
 }
 
+// ── 窗口最大化/还原 ──────────────────────────────────────────
+
+function toggleChatMaximize() {
+  const panel = document.getElementById('aiChatPanel');
+  const btn = document.getElementById('aiChatMaxBtn');
+  if (panel.dataset.maximized === 'true') {
+    // 还原
+    panel.style.width = panel.dataset.prevWidth;
+    panel.style.height = panel.dataset.prevHeight;
+    panel.dataset.maximized = 'false';
+    btn.textContent = '⤢';
+  } else {
+    // 最大化：保存当前尺寸
+    panel.dataset.prevWidth = panel.style.width || '';
+    panel.dataset.prevHeight = panel.style.height || '';
+    panel.style.width = '50vw';
+    panel.style.height = '70vh';
+    panel.dataset.maximized = 'true';
+    btn.textContent = '⤡';
+  }
+}
+
 // 页面加载后初始化
 initResizeHandle();
+initResizeHandleTop();
 
 // 页面加载时从后端获取数据
 loadTeas();

@@ -178,6 +178,13 @@ def add_tea():
         "scores": {d["key"]: 0 for d in get_dimensions()},
         "note": "",
         "photo": "",
+        "variety": body.get("variety", ""),
+        "grade": body.get("grade", ""),
+        "origin": body.get("origin", ""),
+        "producer": body.get("producer", ""),
+        "price": body.get("price", ""),
+        "brand": body.get("brand", ""),
+        "weight": body.get("weight", ""),
     }
     data["teas"].append(tea)
     mark_report_stale(data)
@@ -198,6 +205,11 @@ def update_tea(tea_id):
         mark_report_stale(data)
     if "note" in body:
         tea["note"] = body["note"]
+    if "name" in body and body["name"].strip():
+        tea["name"] = body["name"].strip()
+    for field in ("variety", "grade", "origin", "producer", "price", "brand", "weight"):
+        if field in body:
+            tea[field] = body[field]
 
     save_data(data)
     return jsonify(tea)
@@ -507,6 +519,7 @@ def get_notes():
 @app.route("/api/notes", methods=["POST"])
 def add_note():
     body = request.get_json()
+    print(f"[DEBUG] POST /api/notes body: {body}")
     content = (body.get("content") or "").strip()
     if not content:
         return jsonify({"error": "笔记内容不能为空"}), 400
@@ -514,11 +527,16 @@ def add_note():
     data = load_notes()
     data["nextId"] += 1
     now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    tags = body.get("tags", [])
+    if not isinstance(tags, list):
+        tags = []
+    tags = [str(t).strip() for t in tags if str(t).strip()]
     note = {
         "id": data["nextId"],
         "title": (body.get("title") or "").strip(),
         "content": content,
         "source": body.get("source", "manual"),
+        "tags": tags,
         "created_at": now,
         "updated_at": now,
     }
@@ -530,6 +548,7 @@ def add_note():
 @app.route("/api/notes/<int:note_id>", methods=["PUT"])
 def update_note(note_id):
     body = request.get_json()
+    print(f"[DEBUG] PUT /api/notes/{note_id} body: {body}")
     content = (body.get("content") or "").strip()
     if not content:
         return jsonify({"error": "笔记内容不能为空"}), 400
@@ -541,6 +560,11 @@ def update_note(note_id):
 
     note["title"] = (body.get("title") or "").strip()
     note["content"] = content
+    if "tags" in body:
+        tags = body["tags"]
+        if not isinstance(tags, list):
+            tags = []
+        note["tags"] = [str(t).strip() for t in tags if str(t).strip()]
     note["updated_at"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     save_notes(data)
     return jsonify(note)
@@ -586,6 +610,12 @@ def ai_analyze():
         tea_info += f"- {t['name']}：{scores_str}，总分={total}/{max_total}"
         if t["note"]:
             tea_info += f"，备注：{t['note']}"
+        for label, field in (("品种", "variety"), ("等级", "grade"), ("产地", "origin"),
+                             ("企业", "producer"), ("价格", "price"), ("品牌", "brand"),
+                             ("净重", "weight")):
+            val = t.get(field, "")
+            if val:
+                tea_info += f"，{label}：{val}"
         tea_info += "\n"
 
     system_prompt = cfg.get("system_prompt", "").strip() or DEFAULT_SYSTEM_PROMPT
@@ -682,5 +712,6 @@ if __name__ == "__main__":
     url = f"http://localhost:{port}"
     print(f"🍵 岩茶品鉴系统已启动: {url}")
     print(f"   管理后台: {url}/admin")
+    print(f"   [版本] tags-support-v2")
     Timer(1.0, lambda: webbrowser.open(url)).start()
     app.run(host="0.0.0.0", port=port, debug=False)
