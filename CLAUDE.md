@@ -31,7 +31,7 @@ pip install -r requirements.txt
 
 **前端：两个独立 HTML 文件，各自包含完整的 CSS + JS，主内容宽度 1200px**
 - `index.html`（~3700 行）：品鉴主页面 — 顶层双 Tab（品鉴打分/品茶笔记）、添加茶样（弹窗填写扩展字段）、逐项打分（7 维度 × 1-5 分）、对比表格（含信息行 + 单价对比）、排名、AI 分析报告、浮动 AI 助手对话（支持收藏到笔记）
-- `admin.html`（~660 行）：管理后台 — 大模型配置、系统提示词编辑、评分维度自定义（拖拽排序）、数据备份恢复
+- `admin.html`（~660 行）：管理后台 — 大模型配置、系统提示词编辑、评分维度自定义（拖拽排序）、茶样字段配置、派生指标配置、数据备份恢复
 
 **设计规范：`DESIGN_SYSTEM.md`** — 茶色温润主题的完整 UI 规范（颜色、字体、间距、圆角、阴影、组件模板）。前端改动必须遵循此规范，使用 CSS 变量。
 
@@ -40,12 +40,14 @@ pip install -r requirements.txt
 - 前端 JS 用 `fetch()` 调后端 REST API，AI 相关接口返回 SSE 流（`text/event-stream`）
 - 报告持久化：AI 分析完成后自动写入 `teas.json` 的 `report` 字段，茶样变更时标记 `stale: true`
 - 评分维度可自定义（存在 `config.json`），默认 7 维度定义在 `server.py` 的 `DEFAULT_DIMENSIONS`
+- 茶样字段可自定义（存在 `config.json` 的 `teaFields`），默认 7 字段定义在 `server.py` 的 `DEFAULT_TEA_FIELDS`。字段含 key、label、type(text/number)、可选 unit 和 align
+- 派生指标可自定义（存在 `config.json` 的 `derivedMetrics`），默认单价(价格÷净重)定义在 `server.py` 的 `DEFAULT_DERIVED_METRICS`。指标含 numerator/denominator 引用字段 key，当引用字段被删除时指标自动隐藏
+- 前端加载配置：`loadTeas()` 并行获取 `/api/dimensions`、`/api/tea-fields`、`/api/derived-metrics`，存入全局变量 `DIMENSIONS`、`TEA_FIELDS`、`DERIVED_METRICS`
 - 备份机制：ZIP 打包 `teas.json` + `config.json` + `notes.json` + `photos/`，恢复前自动创建快照
 - 品茶笔记：顶层 Tab 切换的独立视图，支持手动新增/编辑/删除，AI 对话气泡收藏按钮一键存入笔记（source 区分 manual/ai-chat）
 - 弹窗显隐：`.modal-mask` 用 CSS `opacity` + `.show` class 控制，不要用 `style.display`
-- 茶样扩展字段：品种、等级、产地、生产企业、价格、品牌、净重，添加/编辑时通过弹窗填写，卡片以 pill 标签展示
-- 茶样编辑：复用添加弹窗，通过 `teaEditorMode`（'add'|'edit'）区分新建和编辑
-- 对比表格：信息行（浅色背景）+ 分隔线 + 评分维度行，单价行根据价格自动着色（绿→红渐变）
+- 茶样编辑：复用添加弹窗，通过 `teaEditorMode`（'add'|'edit'）区分新建和编辑，表单字段由 `TEA_FIELDS` 配置动态生成
+- 对比表格：信息行从 `TEA_FIELDS` 动态生成（含 unit/align），派生指标行从 `DERIVED_METRICS` 动态计算（支持 colorMap 热力图）
 - 图片预览：`position: fixed` 元素必须挂载到 `document.body`，不能放在 `position: sticky` 祖先内
 
 ## Data Directory

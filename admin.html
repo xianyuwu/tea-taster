@@ -233,6 +233,22 @@
     border-color: #d4380d;
     color: #d4380d;
   }
+  .dim-fields select {
+    padding: 7px 10px;
+    border: 1px solid #d4c4b0;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    outline: none;
+    font-family: inherit;
+    background: #fff;
+  }
+  .dim-fields select:focus { border-color: #8b5e3c; }
+  .dim-type { width: 80px; }
+  .dim-unit { width: 60px; }
+  .dim-align { width: 70px; }
+  .dim-num { width: 90px; }
+  .dim-den { width: 90px; }
+  .dim-min { width: 55px; }
 </style>
 </head>
 <body>
@@ -317,6 +333,32 @@
     <button class="btn btn-secondary" onclick="resetDimensions()">恢复默认</button>
   </div>
   <div class="status-msg" id="dimStatus"></div>
+</div>
+
+<!-- 茶样字段配置 -->
+<div class="section">
+  <div class="section-title">🏷 茶样字段配置</div>
+  <div class="form-hint" style="margin-bottom:12px;">配置茶样扩展字段，可自由增删和排序。已有茶样数据不受影响。</div>
+  <div id="fieldList"></div>
+  <div style="margin-top:12px;" class="btn-group">
+    <button class="btn btn-primary" onclick="saveTeaFields()">保存字段</button>
+    <button class="btn btn-secondary" onclick="addTeaField()">+ 添加字段</button>
+    <button class="btn btn-secondary" onclick="resetTeaFields()">恢复默认</button>
+  </div>
+  <div class="status-msg" id="fieldStatus"></div>
+</div>
+
+<!-- 派生指标配置 -->
+<div class="section">
+  <div class="section-title">📐 派生指标配置</div>
+  <div class="form-hint" style="margin-bottom:12px;">配置由茶样字段自动计算的派生指标（如单价 = 价格 / 净重）。当引用的字段被删除时，该指标将自动隐藏。</div>
+  <div id="metricList"></div>
+  <div style="margin-top:12px;" class="btn-group">
+    <button class="btn btn-primary" onclick="saveDerivedMetrics()">保存指标</button>
+    <button class="btn btn-secondary" onclick="addDerivedMetric()">+ 添加指标</button>
+    <button class="btn btn-secondary" onclick="resetDerivedMetrics()">恢复默认</button>
+  </div>
+  <div class="status-msg" id="metricStatus"></div>
 </div>
 
 <script>
@@ -558,7 +600,6 @@ const DEFAULT_DIMS = [
 ];
 
 let dims = [];
-let dragIdx = null;
 
 async function loadDimensions() {
   dims = await api('/api/dimensions');
@@ -571,7 +612,7 @@ function renderDims() {
     el.innerHTML = '<div style="color:#a08a78;font-size:0.85rem;padding:8px 0;">暂无维度，请添加或恢复默认</div>';
     return;
   }
-  el.innerHTML = dims.map((d, i) => `<div class="dim-card" draggable="true" data-idx="${i}">
+  el.innerHTML = dims.map((d, i) => `<div class="dim-card" draggable="true" data-idx="${i}" data-type="dim">
     <span class="dim-handle" title="拖拽排序">☰</span>
     <div class="dim-fields">
       <input class="dim-key" value="${d.key}" placeholder="key" title="唯一标识（英文）" onchange="dims[${i}].key=this.value">
@@ -585,27 +626,7 @@ function renderDims() {
     </div>
   </div>`).join('');
 
-  // 拖拽排序
-  el.querySelectorAll('.dim-card').forEach(card => {
-    card.addEventListener('dragstart', e => {
-      dragIdx = +card.dataset.idx;
-      card.style.opacity = '0.5';
-    });
-    card.addEventListener('dragend', () => {
-      card.style.opacity = '1';
-      dragIdx = null;
-    });
-    card.addEventListener('dragover', e => e.preventDefault());
-    card.addEventListener('drop', e => {
-      e.preventDefault();
-      const toIdx = +card.dataset.idx;
-      if (dragIdx !== null && dragIdx !== toIdx) {
-        const item = dims.splice(dragIdx, 1)[0];
-        dims.splice(toIdx, 0, item);
-        renderDims();
-      }
-    });
-  });
+  setupDrag('dimList', 'dim', dims, renderDims);
 }
 
 function moveDim(i, dir) {
@@ -654,11 +675,233 @@ function resetDimensions() {
   showStatus('dimStatus', true, '已恢复为默认维度，点击「保存维度」生效');
 }
 
+// ── 茶样字段 ─────────────────────────────────────────────
+
+const DEFAULT_TEA_FIELDS = [
+  {key:'variety', label:'品种', type:'text'},
+  {key:'grade', label:'等级', type:'text'},
+  {key:'origin', label:'产地', type:'text'},
+  {key:'producer', label:'生产企业', type:'text', align:'left'},
+  {key:'price', label:'价格', type:'number', unit:'元'},
+  {key:'brand', label:'品牌', type:'text'},
+  {key:'weight', label:'净重', type:'number', unit:'g'},
+];
+
+let teaFields = [];
+
+async function loadTeaFields() {
+  teaFields = await api('/api/tea-fields');
+  renderFields();
+}
+
+function renderFields() {
+  const el = document.getElementById('fieldList');
+  if (teaFields.length === 0) {
+    el.innerHTML = '<div style="color:#a08a78;font-size:0.85rem;padding:8px 0;">暂无字段，请添加或恢复默认</div>';
+    return;
+  }
+  el.innerHTML = teaFields.map((f, i) => {
+    const alignVal = f.align || '';
+    return `<div class="dim-card" draggable="true" data-idx="${i}" data-type="field">
+    <span class="dim-handle" title="拖拽排序">☰</span>
+    <div class="dim-fields">
+      <input class="dim-key" value="${f.key}" placeholder="key" title="唯一标识（英文）" onchange="teaFields[${i}].key=this.value">
+      <input class="dim-name" value="${f.label}" placeholder="名称" title="显示名称" onchange="teaFields[${i}].label=this.value">
+      <select class="dim-type" title="字段类型" onchange="teaFields[${i}].type=this.value">
+        <option value="text" ${f.type!=='number'?'selected':''}>文本</option>
+        <option value="number" ${f.type==='number'?'selected':''}>数字</option>
+      </select>
+      <input class="dim-unit" value="${f.unit||''}" placeholder="单位" title="显示单位（如：元、g）" onchange="teaFields[${i}].unit=this.value">
+      <select class="dim-align" title="对齐方式" onchange="teaFields[${i}].align=this.value">
+        <option value="" ${!alignVal?'selected':''}>居中</option>
+        <option value="left" ${alignVal==='left'?'selected':''}>左对齐</option>
+      </select>
+    </div>
+    <div class="dim-actions">
+      <button title="上移" onclick="moveField(${i},-1)" ${i===0?'disabled':''}>↑</button>
+      <button title="下移" onclick="moveField(${i},1)" ${i===teaFields.length-1?'disabled':''}>↓</button>
+      <button class="dim-del" title="删除" onclick="removeField(${i})">✕</button>
+    </div>
+  </div>`;
+  }).join('');
+
+  setupDrag('fieldList', 'field', teaFields, renderFields);
+}
+
+function moveField(i, dir) {
+  const j = i + dir;
+  if (j < 0 || j >= teaFields.length) return;
+  [teaFields[i], teaFields[j]] = [teaFields[j], teaFields[i]];
+  renderFields();
+}
+
+function removeField(i) {
+  teaFields.splice(i, 1);
+  renderFields();
+}
+
+function addTeaField() {
+  const n = teaFields.length + 1;
+  teaFields.push({ key: `field_${n}`, label: `字段${n}`, type: 'text' });
+  renderFields();
+  document.getElementById('fieldList').lastElementChild?.scrollIntoView({ behavior: 'smooth' });
+}
+
+async function saveTeaFields() {
+  const keys = teaFields.map(f => f.key.trim());
+  if (keys.some(k => !k)) { showStatus('fieldStatus', false, '字段 key 不能为空'); return; }
+  if (new Set(keys).size !== keys.length) { showStatus('fieldStatus', false, '字段 key 不能重复'); return; }
+  if (teaFields.some(f => !f.label.trim())) { showStatus('fieldStatus', false, '字段名称不能为空'); return; }
+
+  try {
+    await api('/api/tea-fields', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ teaFields }),
+    });
+    showStatus('fieldStatus', true, '茶样字段已保存');
+    renderMetrics(); // 刷新派生指标的下拉选项
+  } catch (e) {
+    showStatus('fieldStatus', false, e.message);
+  }
+}
+
+function resetTeaFields() {
+  teaFields = JSON.parse(JSON.stringify(DEFAULT_TEA_FIELDS));
+  renderFields();
+  showStatus('fieldStatus', true, '已恢复为默认字段，点击「保存字段」生效');
+}
+
+// ── 派生指标 ─────────────────────────────────────────────
+
+const DEFAULT_DERIVED_METRICS = [
+  {key:'unitPrice', label:'单价', numerator:'price', denominator:'weight', unit:'元/克', minRequired:2, colorMap:true},
+];
+
+let derivedMetrics = [];
+
+async function loadDerivedMetrics() {
+  derivedMetrics = await api('/api/derived-metrics');
+  renderMetrics();
+}
+
+function renderMetrics() {
+  const el = document.getElementById('metricList');
+  if (derivedMetrics.length === 0) {
+    el.innerHTML = '<div style="color:#a08a78;font-size:0.85rem;padding:8px 0;">暂无派生指标，请添加或恢复默认</div>';
+    return;
+  }
+  const fieldOpts = (selected) => {
+    const opts = teaFields.map(f =>
+      `<option value="${f.key}" ${f.key === selected ? 'selected' : ''}>${f.label}(${f.key})</option>`
+    ).join('');
+    return `<option value="" ${!selected ? 'selected' : ''}>请选择字段</option>` + opts;
+  };
+
+  el.innerHTML = derivedMetrics.map((m, i) => `<div class="dim-card" draggable="true" data-idx="${i}" data-type="metric">
+    <span class="dim-handle" title="拖拽排序">☰</span>
+    <div class="dim-fields">
+      <input class="dim-key" value="${m.key}" placeholder="key" title="唯一标识" onchange="derivedMetrics[${i}].key=this.value">
+      <input class="dim-name" value="${m.label}" placeholder="名称" title="显示名称" onchange="derivedMetrics[${i}].label=this.value">
+      <select class="dim-num" title="分子字段" onchange="derivedMetrics[${i}].numerator=this.value">${fieldOpts(m.numerator)}</select>
+      <span style="color:#a08a78;font-size:1.1rem;flex-shrink:0">/</span>
+      <select class="dim-den" title="分母字段" onchange="derivedMetrics[${i}].denominator=this.value">${fieldOpts(m.denominator)}</select>
+      <input class="dim-unit" value="${m.unit||''}" placeholder="单位" title="结果单位" onchange="derivedMetrics[${i}].unit=this.value">
+      <input class="dim-min" type="number" value="${m.minRequired||2}" placeholder="最少" title="最少有效茶样数" min="1" style="width:50px" onchange="derivedMetrics[${i}].minRequired=parseInt(this.value)||2">
+      <label style="display:flex;align-items:center;gap:3px;font-size:0.78rem;color:#8a7060;flex-shrink:0;cursor:pointer" title="热力图着色">
+        <input type="checkbox" ${m.colorMap?'checked':''} onchange="derivedMetrics[${i}].colorMap=this.checked"> 着色
+      </label>
+    </div>
+    <div class="dim-actions">
+      <button title="上移" onclick="moveMetric(${i},-1)" ${i===0?'disabled':''}>↑</button>
+      <button title="下移" onclick="moveMetric(${i},1)" ${i===derivedMetrics.length-1?'disabled':''}>↓</button>
+      <button class="dim-del" title="删除" onclick="removeMetric(${i})">✕</button>
+    </div>
+  </div>`).join('');
+
+  setupDrag('metricList', 'metric', derivedMetrics, renderMetrics);
+}
+
+function moveMetric(i, dir) {
+  const j = i + dir;
+  if (j < 0 || j >= derivedMetrics.length) return;
+  [derivedMetrics[i], derivedMetrics[j]] = [derivedMetrics[j], derivedMetrics[i]];
+  renderMetrics();
+}
+
+function removeMetric(i) {
+  derivedMetrics.splice(i, 1);
+  renderMetrics();
+}
+
+function addDerivedMetric() {
+  const n = derivedMetrics.length + 1;
+  derivedMetrics.push({ key: `metric_${n}`, label: `指标${n}`, numerator: '', denominator: '', unit: '', minRequired: 2, colorMap: false });
+  renderMetrics();
+  document.getElementById('metricList').lastElementChild?.scrollIntoView({ behavior: 'smooth' });
+}
+
+async function saveDerivedMetrics() {
+  const keys = derivedMetrics.map(m => m.key.trim());
+  if (keys.some(k => !k)) { showStatus('metricStatus', false, '指标 key 不能为空'); return; }
+  if (new Set(keys).size !== keys.length) { showStatus('metricStatus', false, '指标 key 不能重复'); return; }
+  if (derivedMetrics.some(m => !m.label.trim())) { showStatus('metricStatus', false, '指标名称不能为空'); return; }
+  if (derivedMetrics.some(m => !m.numerator)) { showStatus('metricStatus', false, '必须选择分子字段'); return; }
+  if (derivedMetrics.some(m => !m.denominator)) { showStatus('metricStatus', false, '必须选择分母字段'); return; }
+
+  try {
+    await api('/api/derived-metrics', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ derivedMetrics }),
+    });
+    showStatus('metricStatus', true, '派生指标已保存');
+  } catch (e) {
+    showStatus('metricStatus', false, e.message);
+  }
+}
+
+function resetDerivedMetrics() {
+  derivedMetrics = JSON.parse(JSON.stringify(DEFAULT_DERIVED_METRICS));
+  renderMetrics();
+  showStatus('metricStatus', true, '已恢复为默认指标，点击「保存指标」生效');
+}
+
+// ── 通用拖拽排序 ──────────────────────────────────────────
+
+const dragState = { dim: null, field: null, metric: null };
+
+function setupDrag(listId, type, arr, renderFn) {
+  const el = document.getElementById(listId);
+  el.querySelectorAll(`.dim-card[data-type="${type}"]`).forEach(card => {
+    card.addEventListener('dragstart', e => {
+      dragState[type] = +card.dataset.idx;
+      card.style.opacity = '0.5';
+    });
+    card.addEventListener('dragend', () => {
+      card.style.opacity = '1';
+      dragState[type] = null;
+    });
+    card.addEventListener('dragover', e => e.preventDefault());
+    card.addEventListener('drop', e => {
+      e.preventDefault();
+      const toIdx = +card.dataset.idx;
+      const fromIdx = dragState[type];
+      if (fromIdx !== null && fromIdx !== toIdx) {
+        const item = arr.splice(fromIdx, 1)[0];
+        arr.splice(toIdx, 0, item);
+        renderFn();
+      }
+    });
+  });
+}
+
 // ── 初始化 ───────────────────────────────────────────────
 
 loadConfig();
 loadBackups();
 loadDimensions();
+loadTeaFields().then(() => loadDerivedMetrics());
 </script>
 
 </body></html>

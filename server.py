@@ -53,6 +53,21 @@ DEFAULT_DIMENSIONS = [
     {"key": "overall", "name": "整体愉悦", "desc": "综合感受，想不想再来一杯"},
 ]
 
+DEFAULT_TEA_FIELDS = [
+    {"key": "variety", "label": "品种", "type": "text"},
+    {"key": "grade", "label": "等级", "type": "text"},
+    {"key": "origin", "label": "产地", "type": "text"},
+    {"key": "producer", "label": "生产企业", "type": "text", "align": "left"},
+    {"key": "price", "label": "价格", "type": "number", "unit": "元"},
+    {"key": "brand", "label": "品牌", "type": "text"},
+    {"key": "weight", "label": "净重", "type": "number", "unit": "g"},
+]
+
+DEFAULT_DERIVED_METRICS = [
+    {"key": "unitPrice", "label": "单价", "numerator": "price",
+     "denominator": "weight", "unit": "元/克", "minRequired": 2, "colorMap": True},
+]
+
 # ── 数据读写 ──────────────────────────────────────────────
 
 def load_data():
@@ -117,6 +132,16 @@ def get_dimensions():
     return cfg.get("dimensions") or DEFAULT_DIMENSIONS
 
 
+def get_tea_fields():
+    cfg = load_config()
+    return cfg.get("teaFields") or DEFAULT_TEA_FIELDS
+
+
+def get_derived_metrics():
+    cfg = load_config()
+    return cfg.get("derivedMetrics") or DEFAULT_DERIVED_METRICS
+
+
 def load_notes():
     if NOTES_FILE.exists():
         with open(NOTES_FILE, "r", encoding="utf-8") as f:
@@ -178,14 +203,9 @@ def add_tea():
         "scores": {d["key"]: 0 for d in get_dimensions()},
         "note": "",
         "photo": "",
-        "variety": body.get("variety", ""),
-        "grade": body.get("grade", ""),
-        "origin": body.get("origin", ""),
-        "producer": body.get("producer", ""),
-        "price": body.get("price", ""),
-        "brand": body.get("brand", ""),
-        "weight": body.get("weight", ""),
     }
+    for f in get_tea_fields():
+        tea[f["key"]] = body.get(f["key"], "")
     data["teas"].append(tea)
     mark_report_stale(data)
     save_data(data)
@@ -207,9 +227,9 @@ def update_tea(tea_id):
         tea["note"] = body["note"]
     if "name" in body and body["name"].strip():
         tea["name"] = body["name"].strip()
-    for field in ("variety", "grade", "origin", "producer", "price", "brand", "weight"):
-        if field in body:
-            tea[field] = body[field]
+    for f in get_tea_fields():
+        if f["key"] in body:
+            tea[f["key"]] = body[f["key"]]
 
     save_data(data)
     return jsonify(tea)
@@ -278,6 +298,53 @@ def update_dims():
     cfg["dimensions"] = dims
     save_config(cfg)
     return jsonify({"message": "评分维度已保存"})
+
+
+# ── 茶样字段 API ──────────────────────────────────────────
+
+@app.route("/api/tea-fields", methods=["GET"])
+def get_tea_fields_api():
+    return jsonify(get_tea_fields())
+
+
+@app.route("/api/tea-fields", methods=["PUT"])
+def update_tea_fields_api():
+    body = request.get_json()
+    fields = body.get("teaFields")
+    if not isinstance(fields, list):
+        return jsonify({"error": "字段列表格式错误"}), 400
+    for f in fields:
+        if not f.get("key") or not f.get("label"):
+            return jsonify({"error": "每个字段必须有 key 和 label"}), 400
+    keys = [f["key"] for f in fields]
+    if len(keys) != len(set(keys)):
+        return jsonify({"error": "字段 key 不能重复"}), 400
+    cfg = load_config()
+    cfg["teaFields"] = fields
+    save_config(cfg)
+    return jsonify({"message": "茶样字段已保存"})
+
+
+# ── 派生指标 API ──────────────────────────────────────────
+
+@app.route("/api/derived-metrics", methods=["GET"])
+def get_derived_metrics_api():
+    return jsonify(get_derived_metrics())
+
+
+@app.route("/api/derived-metrics", methods=["PUT"])
+def update_derived_metrics_api():
+    body = request.get_json()
+    metrics = body.get("derivedMetrics")
+    if not isinstance(metrics, list):
+        return jsonify({"error": "派生指标列表格式错误"}), 400
+    for m in metrics:
+        if not m.get("key") or not m.get("label") or not m.get("numerator") or not m.get("denominator"):
+            return jsonify({"error": "每个派生指标必须有 key、label、numerator、denominator"}), 400
+    cfg = load_config()
+    cfg["derivedMetrics"] = metrics
+    save_config(cfg)
+    return jsonify({"message": "派生指标已保存"})
 
 
 # ── 配置 API ─────────────────────────────────────────────
@@ -610,12 +677,10 @@ def ai_analyze():
         tea_info += f"- {t['name']}：{scores_str}，总分={total}/{max_total}"
         if t["note"]:
             tea_info += f"，备注：{t['note']}"
-        for label, field in (("品种", "variety"), ("等级", "grade"), ("产地", "origin"),
-                             ("企业", "producer"), ("价格", "price"), ("品牌", "brand"),
-                             ("净重", "weight")):
-            val = t.get(field, "")
+        for f in get_tea_fields():
+            val = t.get(f["key"], "")
             if val:
-                tea_info += f"，{label}：{val}"
+                tea_info += f"，{f['label']}：{val}"
         tea_info += "\n"
 
     system_prompt = cfg.get("system_prompt", "").strip() or DEFAULT_SYSTEM_PROMPT

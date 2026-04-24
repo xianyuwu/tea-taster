@@ -2029,34 +2029,7 @@
       <label>茶名</label>
       <input type="text" id="editTeaName">
     </div>
-    <div class="tea-edit-row">
-      <label>品种</label>
-      <input type="text" id="editTeaVariety" placeholder="如：肉桂、水仙">
-    </div>
-    <div class="tea-edit-row">
-      <label>等级</label>
-      <input type="text" id="editTeaGrade" placeholder="如：特级、一级">
-    </div>
-    <div class="tea-edit-row">
-      <label>产地</label>
-      <input type="text" id="editTeaOrigin" placeholder="如：牛栏坑、慧苑坑">
-    </div>
-    <div class="tea-edit-row">
-      <label>生产企业</label>
-      <input type="text" id="editTeaProducer" placeholder="如：XX茶业有限公司">
-    </div>
-    <div class="tea-edit-row">
-      <label>价格</label>
-      <input type="text" id="editTeaPrice" placeholder="如：200元/盒">
-    </div>
-    <div class="tea-edit-row">
-      <label>品牌</label>
-      <input type="text" id="editTeaBrand" placeholder="如：XX茶业">
-    </div>
-    <div class="tea-edit-row">
-      <label>净重</label>
-      <input type="text" id="editTeaWeight" placeholder="如：8.3、250">
-    </div>
+    <div id="dynamicTeaFields"></div>
     <div class="tea-edit-btns">
       <button class="btn btn-cancel" onclick="closeTeaEditor()">取消</button>
       <button class="btn btn-primary" onclick="saveTeaEdit()">保存</button>
@@ -2108,6 +2081,8 @@
 
 <script>
 let DIMENSIONS = [];
+let TEA_FIELDS = [];
+let DERIVED_METRICS = [];
 let teas = [];
 let notes = [];
 let currentPhotoTeaId = null;
@@ -2128,10 +2103,13 @@ async function api(path, opts = {}) {
 }
 
 async function loadTeas() {
-  [DIMENSIONS, teas] = await Promise.all([
+  [DIMENSIONS, TEA_FIELDS, DERIVED_METRICS, teas] = await Promise.all([
     api('/api/dimensions'),
+    api('/api/tea-fields'),
+    api('/api/derived-metrics'),
     api('/api/teas'),
   ]);
+  buildDynamicEditFields();
 
   // 加载已保存的报告
   const reportData = await api('/api/report');
@@ -2146,7 +2124,18 @@ async function loadTeas() {
   notes = await api('/api/notes');
 
   render();
-  renderReport();
+}
+
+function buildDynamicEditFields() {
+  const container = document.getElementById('dynamicTeaFields');
+  if (!container) return;
+  container.innerHTML = TEA_FIELDS.map(f => {
+    const inputType = (f.type === 'number') ? 'number' : 'text';
+    return `<div class="tea-edit-row">
+      <label>${f.label}</label>
+      <input type="${inputType}" id="editTea_${f.key}">
+    </div>`;
+  }).join('');
 }
 
 // ── 茶样操作 ─────────────────────────────────────────────
@@ -2160,13 +2149,10 @@ function addTea() {
   teaEditorMode = 'add';
   document.getElementById('teaEditDialogTitle').textContent = '➕ 添加茶样';
   document.getElementById('editTeaName').value = name;
-  document.getElementById('editTeaVariety').value = '';
-  document.getElementById('editTeaGrade').value = '';
-  document.getElementById('editTeaOrigin').value = '';
-  document.getElementById('editTeaProducer').value = '';
-  document.getElementById('editTeaPrice').value = '';
-  document.getElementById('editTeaBrand').value = '';
-  document.getElementById('editTeaWeight').value = '';
+  TEA_FIELDS.forEach(f => {
+    const el = document.getElementById(`editTea_${f.key}`);
+    if (el) el.value = '';
+  });
   const modal = document.getElementById('teaEditModal');
   modal.style.display = 'flex';
   requestAnimationFrame(() => modal.classList.add('show'));
@@ -2211,13 +2197,10 @@ function showTeaEditor(id) {
   teaEditorMode = 'edit';
   document.getElementById('teaEditDialogTitle').textContent = '✎ 编辑茶样信息';
   document.getElementById('editTeaName').value = tea.name || '';
-  document.getElementById('editTeaVariety').value = tea.variety || '';
-  document.getElementById('editTeaGrade').value = tea.grade || '';
-  document.getElementById('editTeaOrigin').value = tea.origin || '';
-  document.getElementById('editTeaProducer').value = tea.producer || '';
-  document.getElementById('editTeaPrice').value = tea.price || '';
-  document.getElementById('editTeaBrand').value = tea.brand || '';
-  document.getElementById('editTeaWeight').value = tea.weight || '';
+  TEA_FIELDS.forEach(f => {
+    const el = document.getElementById(`editTea_${f.key}`);
+    if (el) el.value = tea[f.key] || '';
+  });
   const modal = document.getElementById('teaEditModal');
   modal.style.display = 'flex';
   requestAnimationFrame(() => modal.classList.add('show'));
@@ -2231,16 +2214,11 @@ function closeTeaEditor() {
 }
 
 async function saveTeaEdit() {
-  const body = {
-    name: document.getElementById('editTeaName').value.trim(),
-    variety: document.getElementById('editTeaVariety').value.trim(),
-    grade: document.getElementById('editTeaGrade').value.trim(),
-    origin: document.getElementById('editTeaOrigin').value.trim(),
-    producer: document.getElementById('editTeaProducer').value.trim(),
-    price: document.getElementById('editTeaPrice').value.trim(),
-    brand: document.getElementById('editTeaBrand').value.trim(),
-    weight: document.getElementById('editTeaWeight').value.trim(),
-  };
+  const body = { name: document.getElementById('editTeaName').value.trim() };
+  TEA_FIELDS.forEach(f => {
+    const el = document.getElementById(`editTea_${f.key}`);
+    if (el) body[f.key] = el.value.trim();
+  });
   if (!body.name) { showToast('茶名不能为空'); return; }
   try {
     if (teaEditorMode === 'add') {
@@ -2308,12 +2286,11 @@ function photoUrl(tea) {
 }
 
 function teaMetaHtml(t) {
-  const labels = { variety: '品种', grade: '等级', origin: '产地', producer: '企业', price: '价格', brand: '品牌', weight: '净重' };
   let html = '';
-  for (const [key, label] of Object.entries(labels)) {
-    const val = (t[key] || '').trim();
-    if (val) html += `<span class="tea-meta-pill"><b>${label}：</b>${val}</span>`;
-  }
+  TEA_FIELDS.forEach(f => {
+    const val = (t[f.key] || '').trim();
+    if (val) html += `<span class="tea-meta-pill"><b>${f.label}：</b>${val}</span>`;
+  });
   return html;
 }
 
@@ -2484,15 +2461,12 @@ function renderTable() {
   });
   const maxTotal = Math.max(...teas.map(t => getTotal(t)));
 
-  const metaFields = [
-    { key: 'variety', label: '品种' },
-    { key: 'grade', label: '等级' },
-    { key: 'origin', label: '产地' },
-    { key: 'producer', label: '生产企业' },
-    { key: 'price', label: '价格' },
-    { key: 'brand', label: '品牌' },
-    { key: 'weight', label: '净重' },
-  ];
+  const metaFields = TEA_FIELDS.map(f => ({
+    key: f.key,
+    label: f.label,
+    unit: f.unit || '',
+    align: f.align || '',
+  }));
 
   function parseNum(s) {
     const m = (s || '').match(/[\d.]+/);
@@ -2502,15 +2476,6 @@ function renderTable() {
     if (!val || val === '-') return val;
     return /^[\d.]+$/.test(val.trim()) ? val.trim() + unit : val;
   }
-
-  const priceNums = teas.map(t => parseNum(t.price));
-  const weightNums = teas.map(t => parseNum(t.weight));
-  const unitPrices = teas.map((t, i) => {
-    const p = priceNums[i], w = weightNums[i];
-    return (!isNaN(p) && !isNaN(w) && w > 0) ? p / w : NaN;
-  });
-  const validPrices = unitPrices.filter(v => !isNaN(v));
-  const hasUnitPrice = validPrices.length >= 2;
 
   let html = '<table><thead><tr><th>维度</th>';
   teas.forEach(t => {
@@ -2523,8 +2488,8 @@ function renderTable() {
   html += '</tr></thead><tbody>';
 
   metaFields.forEach(f => {
-    const isLeft = f.key === 'producer';
-    const unit = f.key === 'price' ? '元' : f.key === 'weight' ? 'g' : '';
+    const isLeft = f.align === 'left';
+    const unit = f.unit;
     html += `<tr class="info-row"><td>${f.label}</td>`;
     teas.forEach(t => {
       const raw = (t[f.key] || '').trim();
@@ -2534,25 +2499,38 @@ function renderTable() {
     html += '</tr>';
   });
 
-  if (hasUnitPrice) {
-    const minP = Math.min(...validPrices);
-    const maxP = Math.max(...validPrices);
-    const range = maxP - minP || 1;
-    html += '<tr class="info-row"><td>单价</td>';
-    unitPrices.forEach(up => {
-      if (isNaN(up)) {
+  DERIVED_METRICS.forEach(metric => {
+    const numVals = teas.map(t => parseNum(t[metric.numerator]));
+    const denVals = teas.map(t => parseNum(t[metric.denominator]));
+    const computed = teas.map((t, i) => {
+      const n = numVals[i], d = denVals[i];
+      return (!isNaN(n) && !isNaN(d) && d > 0) ? n / d : NaN;
+    });
+    const valid = computed.filter(v => !isNaN(v));
+    if (valid.length < (metric.minRequired || 2)) return;
+
+    const useColor = metric.colorMap;
+    const minV = Math.min(...valid);
+    const maxV = Math.max(...valid);
+    const range = maxV - minV || 1;
+
+    html += `<tr class="info-row"><td>${metric.label}</td>`;
+    computed.forEach(val => {
+      if (isNaN(val)) {
         html += '<td>-</td>';
-      } else {
-        const ratio = (up - minP) / range;
+      } else if (useColor) {
+        const ratio = (val - minV) / range;
         const r = Math.round(180 + 75 * ratio);
         const g = Math.round(200 - 70 * ratio);
         const b = Math.round(120 - 60 * ratio);
         const bg = `rgba(${r},${g},${b},0.18)`;
-        html += `<td style="background:${bg} !important;font-weight:600">${up.toFixed(1)}元/克</td>`;
+        html += `<td style="background:${bg} !important;font-weight:600">${val.toFixed(1)}${metric.unit}</td>`;
+      } else {
+        html += `<td>${val.toFixed(1)}${metric.unit}</td>`;
       }
     });
     html += '</tr>';
-  }
+  });
 
   DIMENSIONS.forEach((d, i) => {
     html += `<tr${i === 0 ? ' class="score-sep"' : ''}><td>${d.name}</td>`;
