@@ -1,0 +1,52 @@
+:root {
+  /* 主色调 */
+  --color-primary: #8b5e3c;
+  --color-primary-dark: #6d4a2f;
+  --color-primary-light: #a06d40;
+
+  /* 背景色 */
+  --color-bg-page: #f5f0eb;
+  --color-bg-card: #fff;
+  --color-bg-secondary: #faf6f1;
+  --color-bg-tertiary: #f0e6d9;
+  --color-bg-muted: #ebe0d3;
+
+  /* 边框色 */
+  --color-border: #e8ddd0;
+  --color-border-light: #d4c4b0;
+  --color-border-muted: #c4b0a0;
+
+  /* 文字色 */
+  --color-text-primary: #3a2e2a;
+  --color-text-secondary: #5c3a21;
+  --color-text-tertiary: #8a7060;
+  --color-text-muted: #a08a78;
+  --color-text-placeholder: #c4b0a0;
+  --color-text-empty: #b0a090;
+
+  /* 功能色 */
+  --color-success: #3a7d0a;
+  --color-success-bg: #f0f9eb;
+  --color-danger: #d4380d;
+  --color-danger-bg: #fef2f0;
+  --color-warning: #d4a017;
+  --color-warning-bg: #fff9e6;
+
+  /* 奖牌色 */
+  --color-gold: #d4a017;
+  --color-silver: #a0a0a0;
+  --color-bronze: #b87333;
+
+  /* 阴影 */
+  --shadow-sm: 0 2px 8px rgba(92, 58, 33, 0.06);
+  --shadow-md: 0 2px 8px rgba(92, 58, 33, 0.08);
+  --shadow-lg: 0 8px 30px rgba(92, 58, 33, 0.18);
+
+  /* 圆角 */
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+  --radius-xl: 10px;
+  --radius-2xl: 12px;
+  --radius-full: 20px;
+}

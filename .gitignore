@@ -1,6 +1,13 @@
 .env
 data/
 __pycache__/
+*.pyc
 .venv/
 .workbuddy/
 .DS_Store
+.pytest_cache/
+certbot/
+frontend/node_modules/
+frontend/dist/
+dist/
+legacy/
