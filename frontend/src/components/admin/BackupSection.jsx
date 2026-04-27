@@ -71,9 +71,7 @@ export default function BackupSection() {
                 <span className="backup-size">{formatSize(b.size)}</span>
               </div>
               <div className="btn-group">
-                {b.download_url && (
-                  <a href={b.download_url} className="btn btn-secondary btn-sm" style={{ textDecoration: 'none' }} download>下载</a>
-                )}
+                <button className="btn btn-secondary btn-sm" onClick={() => backupApi.downloadBackup(b.filename)}>下载</button>
                 <button className="btn btn-danger btn-sm" onClick={() => handleDelete(b.filename)}>删除</button>
               </div>
             </div>

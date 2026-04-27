@@ -9,3 +9,14 @@ export const restoreBackup = (file) => {
   return apiFetch('/api/restore', { method: 'POST', body: fd });
 };
 export const clearAllData = () => apiFetch('/api/data?confirm=true', { method: 'DELETE' });
+
+export const downloadBackup = async (filename) => {
+  const res = await apiFetch(`/api/backups/${filename}`, { rawResponse: true });
+  const blob = await res.blob();
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  a.click();
+  URL.revokeObjectURL(url);
+};
