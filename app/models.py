@@ -1,4 +1,4 @@
-from sqlalchemy import Boolean, Column, Integer, String, Text
+from sqlalchemy import Boolean, Column, DateTime, Integer, String, Text, func
 from sqlalchemy import JSON
 from sqlalchemy.orm import DeclarativeBase
 
@@ -14,8 +14,8 @@ class User(Base):
     username = Column(String(32), nullable=False, unique=True)
     password_hash = Column(String(128), nullable=False)
     role = Column(String(10), nullable=False, default="user")
-    created_at = Column(String(30), nullable=False)
-    updated_at = Column(String(30), nullable=False)
+    created_at = Column(DateTime, nullable=False, server_default=func.now())
+    updated_at = Column(DateTime, nullable=False, server_default=func.now())
 
 
 class Tea(Base):
@@ -27,8 +27,8 @@ class Tea(Base):
     note = Column(Text, nullable=False, default="")
     photo = Column(String(255), nullable=False, default="")
     extra_fields = Column(JSON, nullable=False, default=dict)
-    created_at = Column(String(30), nullable=False)
-    updated_at = Column(String(30), nullable=False)
+    created_at = Column(DateTime, nullable=False, server_default=func.now())
+    updated_at = Column(DateTime, nullable=False, server_default=func.now())
 
 
 class Report(Base):
@@ -36,7 +36,7 @@ class Report(Base):
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     content = Column(Text, nullable=False, default="")
-    created_at = Column(String(30), nullable=False, default="")
+    created_at = Column(DateTime, nullable=False, server_default=func.now())
     stale = Column(Boolean, nullable=False, default=False)
 
 
@@ -48,8 +48,8 @@ class Note(Base):
     content = Column(Text, nullable=False)
     source = Column(String(20), nullable=False, default="manual")
     tags = Column(JSON, nullable=False, default=list)
-    created_at = Column(String(30), nullable=False)
-    updated_at = Column(String(30), nullable=False)
+    created_at = Column(DateTime, nullable=False, server_default=func.now())
+    updated_at = Column(DateTime, nullable=False, server_default=func.now())
 
 
 class ConfigItem(Base):

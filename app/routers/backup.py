@@ -1,16 +1,18 @@
-from fastapi import APIRouter, Depends, UploadFile, File
+from fastapi import APIRouter, Depends, UploadFile, File, Query
 from fastapi.responses import FileResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db import get_db
+from app.models import User
 from app.services import backup_service
+from app.utils.auth import get_current_user, require_admin
 from app.utils.errors import NotFoundError, AppError
 
-router = APIRouter()
+router = APIRouter(dependencies=[Depends(get_current_user)])
 
 
 @router.post("/api/backup")
-async def create_backup(db: AsyncSession = Depends(get_db)):
+async def create_backup(db: AsyncSession = Depends(get_db), _admin: User = Depends(require_admin)):
     return await backup_service.create_backup(db)
 
 
@@ -28,13 +30,13 @@ async def download_backup(filename: str):
 
 
 @router.delete("/api/backups/{filename}", status_code=204)
-async def delete_backup(filename: str):
+async def delete_backup(filename: str, _admin: User = Depends(require_admin)):
     if not backup_service.delete_backup_file(filename):
         raise NotFoundError("备份文件")
 
 
 @router.post("/api/restore")
-async def restore_backup(file: UploadFile = File(...), db: AsyncSession = Depends(get_db)):
+async def restore_backup(file: UploadFile = File(...), db: AsyncSession = Depends(get_db), _admin: User = Depends(require_admin)):
     file_bytes = await file.read()
     try:
         return await backup_service.restore_backup(db, file_bytes)
@@ -43,5 +45,7 @@ async def restore_backup(file: UploadFile = File(...), db: AsyncSession = Depend
 
 
 @router.delete("/api/data")
-async def clear_data(db: AsyncSession = Depends(get_db)):
+async def clear_data(db: AsyncSession = Depends(get_db), _admin: User = Depends(require_admin), confirm: bool = Query(False)):
+    if not confirm:
+        raise AppError("危险操作：请传入 confirm=true 确认清空所有数据")
     return await backup_service.clear_all_data(db)

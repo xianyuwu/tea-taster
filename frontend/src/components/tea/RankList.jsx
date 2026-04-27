@@ -1,4 +1,5 @@
 import { useTeaStore } from '../../stores/useTeaStore';
+import { calcTotalScore } from '../../utils/score';
 
 const MEDALS = ['🥇', '🥈', '🥉'];
 const RANK_CLASSES = ['gold', 'silver', 'bronze'];
@@ -17,7 +18,7 @@ export default function RankList() {
   const maxScore = dimensions.length * 5;
   const withTotal = teas.map(t => ({
     ...t,
-    total: Object.values(t.scores || {}).reduce((s, v) => s + (Number(v) || 0), 0),
+    total: calcTotalScore(t),
   }));
   const ranked = [...withTotal].sort((a, b) => b.total - a.total);
 

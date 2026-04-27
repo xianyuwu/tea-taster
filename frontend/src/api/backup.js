@@ -8,4 +8,4 @@ export const restoreBackup = (file) => {
   fd.append('file', file);
   return apiFetch('/api/restore', { method: 'POST', body: fd });
 };
-export const clearAllData = () => apiFetch('/api/data', { method: 'DELETE' });
+export const clearAllData = () => apiFetch('/api/data?confirm=true', { method: 'DELETE' });

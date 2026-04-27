@@ -55,8 +55,9 @@ export async function apiFetch(path, options = {}) {
 
   if (res.status === 204) return null;
   if (!res.ok) {
-    const data = await res.json().catch(() => ({ error: '请求失败' }));
+    const data = await res.json().catch(() => ({ error: `请求失败 (HTTP ${res.status})` }));
     throw new Error(data.error || `HTTP ${res.status}`);
   }
+  if (options.rawResponse) return res;
   return res.json();
 }

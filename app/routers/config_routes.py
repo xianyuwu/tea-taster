@@ -4,10 +4,12 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db import get_db
+from app.schemas.config import ConfigUpdate, ConfigTestRequest
 from app.services import config_service
+from app.utils.auth import get_current_user
 from app.utils.errors import AppError
 
-router = APIRouter()
+router = APIRouter(dependencies=[Depends(get_current_user)])
 
 
 @router.get("/api/config")
@@ -24,32 +26,33 @@ async def get_config(db: AsyncSession = Depends(get_db)):
 
 
 @router.put("/api/config")
-async def update_config(body: dict, db: AsyncSession = Depends(get_db)):
+async def update_config(body: ConfigUpdate, db: AsyncSession = Depends(get_db)):
     cfg = await config_service.load_config(db)
+    data = body.model_dump(exclude_unset=True)
 
-    if "openai_api_key" in body and body["openai_api_key"]:
-        config_service.save_api_key_to_env(body["openai_api_key"])
+    if "openai_api_key" in data and data["openai_api_key"]:
+        config_service.save_api_key_to_env(data["openai_api_key"])
         cfg.pop("openai_api_key", None)
 
-    if "openai_model" in body:
-        cfg["openai_model"] = body["openai_model"]
-    if "openai_base_url" in body:
-        cfg["openai_base_url"] = body["openai_base_url"]
-    if "system_prompt" in body:
-        cfg["system_prompt"] = body["system_prompt"]
+    if "openai_model" in data:
+        cfg["openai_model"] = data["openai_model"]
+    if "openai_base_url" in data:
+        cfg["openai_base_url"] = data["openai_base_url"]
+    if "system_prompt" in data:
+        cfg["system_prompt"] = data["system_prompt"]
 
     await config_service.save_config(db, cfg)
     return {"message": "配置已保存"}
 
 
 @router.post("/api/config/test")
-async def test_config(body: dict | None = None, db: AsyncSession = Depends(get_db)):
-    body = body or {}
+async def test_config(body: ConfigTestRequest | None = None, db: AsyncSession = Depends(get_db)):
+    data = body.model_dump(exclude_unset=True) if body else {}
     cfg = await config_service.load_config(db)
 
-    api_key = body.get("openai_api_key") or await config_service.get_api_key(db)
-    base_url = body.get("openai_base_url") or cfg.get("openai_base_url", "https://api.openai.com/v1")
-    model = body.get("openai_model") or cfg.get("openai_model", "gpt-4o")
+    api_key = data.get("openai_api_key") or await config_service.get_api_key(db)
+    base_url = data.get("openai_base_url") or cfg.get("openai_base_url", "https://api.openai.com/v1")
+    model = data.get("openai_model") or cfg.get("openai_model", "gpt-4o")
 
     if not api_key:
         raise AppError("未配置 API Key")

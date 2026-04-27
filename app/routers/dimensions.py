@@ -2,10 +2,12 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db import get_db
+from app.schemas.config import DimensionsUpdate, TeaFieldsUpdate, DerivedMetricsUpdate
 from app.services import config_service
+from app.utils.auth import get_current_user
 from app.utils.errors import AppError
 
-router = APIRouter()
+router = APIRouter(dependencies=[Depends(get_current_user)])
 
 
 @router.get("/api/dimensions")
@@ -14,9 +16,9 @@ async def get_dims(db: AsyncSession = Depends(get_db)):
 
 
 @router.put("/api/dimensions")
-async def update_dims(body: dict, db: AsyncSession = Depends(get_db)):
-    dims = body.get("dimensions")
-    if not isinstance(dims, list) or not dims:
+async def update_dims(body: DimensionsUpdate, db: AsyncSession = Depends(get_db)):
+    dims = body.dimensions
+    if not dims:
         raise AppError("维度列表不能为空")
     for d in dims:
         if not d.get("key") or not d.get("name"):
@@ -33,8 +35,8 @@ async def get_tea_fields_api(db: AsyncSession = Depends(get_db)):
 
 
 @router.put("/api/tea-fields")
-async def update_tea_fields_api(body: dict, db: AsyncSession = Depends(get_db)):
-    fields = body.get("teaFields")
+async def update_tea_fields_api(body: TeaFieldsUpdate, db: AsyncSession = Depends(get_db)):
+    fields = body.teaFields
     if not isinstance(fields, list):
         raise AppError("字段列表格式错误")
     for f in fields:
@@ -55,8 +57,8 @@ async def get_derived_metrics_api(db: AsyncSession = Depends(get_db)):
 
 
 @router.put("/api/derived-metrics")
-async def update_derived_metrics_api(body: dict, db: AsyncSession = Depends(get_db)):
-    metrics = body.get("derivedMetrics")
+async def update_derived_metrics_api(body: DerivedMetricsUpdate, db: AsyncSession = Depends(get_db)):
+    metrics = body.derivedMetrics
     if not isinstance(metrics, list):
         raise AppError("派生指标列表格式错误")
     for m in metrics:

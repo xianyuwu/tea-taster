@@ -8,11 +8,16 @@ from slowapi.errors import RateLimitExceeded
 from slowapi.middleware import SlowAPIMiddleware
 from starlette.middleware.base import BaseHTTPMiddleware
 
-from app.config import DATA_DIR, PHOTO_DIR, BACKUP_DIR, BASE_DIR
+import logging
+import secrets
+
+from app.config import DATA_DIR, PHOTO_DIR, BACKUP_DIR, BASE_DIR, settings
 from app.db import init_db
 from app.utils.errors import AppError, app_error_handler
 from app.utils.rate_limit import limiter
 from app.routers import auth, teas, notes, config_routes, dimensions, ai, backup
+
+logger = logging.getLogger(__name__)
 
 # 前端构建产物目录（React 构建后）
 FRONTEND_DIST = BASE_DIR / "frontend" / "dist"
@@ -34,6 +39,9 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    if not settings.secret_key:
+        settings.secret_key = secrets.token_urlsafe(32)
+        logger.warning("未配置 SECRET_KEY，已生成临时密钥（重启后失效）。建议在 .env 中设置 SECRET_KEY。")
     await init_db()
     yield
 
@@ -49,6 +57,11 @@ def create_app() -> FastAPI:
     # 全局异常处理
     application.add_exception_handler(AppError, app_error_handler)
     application.add_exception_handler(RateLimitExceeded, _rate_limit_handler)
+
+    @application.exception_handler(Exception)
+    async def _unhandled_exception_handler(request: Request, exc: Exception):
+        logger.exception("未捕获的异常: %s", exc)
+        return JSONResponse(status_code=500, content={"error": "服务器内部错误"})
 
     # 速率限制
     application.state.limiter = limiter

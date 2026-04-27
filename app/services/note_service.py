@@ -1,9 +1,19 @@
-from datetime import datetime
+from datetime import datetime, timezone
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models import Note
+
+_DT_FMT = "%Y-%m-%d %H:%M:%S"
+
+
+def _fmt_dt(dt: datetime | None) -> str:
+    if dt is None:
+        return ""
+    if dt.tzinfo is None:
+        dt = dt.replace(tzinfo=timezone.utc)
+    return dt.strftime(_DT_FMT)
 
 
 def _note_to_dict(note: Note) -> dict:
@@ -13,13 +23,13 @@ def _note_to_dict(note: Note) -> dict:
         "content": note.content,
         "source": note.source,
         "tags": note.tags or [],
-        "created_at": note.created_at,
-        "updated_at": note.updated_at,
+        "created_at": _fmt_dt(note.created_at),
+        "updated_at": _fmt_dt(note.updated_at),
     }
 
 
-def _now() -> str:
-    return datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+def _now() -> datetime:
+    return datetime.now(timezone.utc)
 
 
 async def get_all_notes(db: AsyncSession) -> list[dict]:

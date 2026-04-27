@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import Literal
 
 from pydantic import BaseModel, Field
@@ -23,7 +24,8 @@ class UserResponse(BaseModel):
     id: int
     username: str
     role: str
-    created_at: str = ""
+    created_at: datetime | None = None
+    model_config = {"from_attributes": True}
 
 
 class ChangePasswordRequest(BaseModel):

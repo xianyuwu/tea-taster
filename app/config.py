@@ -55,7 +55,7 @@ DEFAULT_DERIVED_METRICS = [
 
 
 class Settings(BaseSettings):
-    secret_key: str = "change-me-in-production"
+    secret_key: str = ""
     openai_api_key: str = ""
     database_url: str = ""
     storage_type: str = "local"

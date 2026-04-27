@@ -9,12 +9,14 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db import get_db
 from app.models import Tea
+from app.schemas.tea import TeaCreate, TeaUpdate
+from app.utils.auth import get_current_user
 from app.utils.errors import NotFoundError, DuplicateError, AppError
 from app.utils.validation import is_allowed_image
 from app.services import tea_service
 from app.services.storage import get_storage
 
-router = APIRouter()
+router = APIRouter(dependencies=[Depends(get_current_user)])
 
 MAX_PHOTO_SIZE = 5 * 1024 * 1024  # 5MB
 MAX_PHOTO_WIDTH = 1200
@@ -26,9 +28,9 @@ async def get_teas(db: AsyncSession = Depends(get_db)):
 
 
 @router.post("/api/teas", status_code=201)
-async def add_tea(body: dict, db: AsyncSession = Depends(get_db)):
+async def add_tea(body: TeaCreate, db: AsyncSession = Depends(get_db)):
     try:
-        return await tea_service.create_tea(db, body)
+        return await tea_service.create_tea(db, body.model_dump())
     except ValueError as e:
         if "同名" in str(e):
             raise DuplicateError(str(e))
@@ -36,9 +38,9 @@ async def add_tea(body: dict, db: AsyncSession = Depends(get_db)):
 
 
 @router.put("/api/teas/{tea_id}")
-async def update_tea(tea_id: int, body: dict, db: AsyncSession = Depends(get_db)):
+async def update_tea(tea_id: int, body: TeaUpdate, db: AsyncSession = Depends(get_db)):
     try:
-        return await tea_service.update_tea(db, tea_id, body)
+        return await tea_service.update_tea(db, tea_id, body.model_dump(exclude_unset=True))
     except KeyError:
         raise NotFoundError("茶样")
 

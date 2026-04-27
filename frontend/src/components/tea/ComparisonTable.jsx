@@ -1,5 +1,6 @@
 import { useState, useCallback } from 'react';
 import { useTeaStore } from '../../stores/useTeaStore';
+import { calcTotalScore } from '../../utils/score';
 
 function parseNum(s) {
   if (s == null) return NaN;
@@ -57,7 +58,7 @@ export default function ComparisonTable() {
   const maxScore = dimensions.length * 5;
   const withTotal = teas.map(t => ({
     ...t,
-    total: Object.values(t.scores || {}).reduce((s, v) => s + (Number(v) || 0), 0),
+    total: calcTotalScore(t),
   }));
   const sorted = [...withTotal].sort((a, b) => b.total - a.total);
 

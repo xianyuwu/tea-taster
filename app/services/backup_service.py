@@ -1,7 +1,7 @@
 import json
 import shutil
 import zipfile
-from datetime import datetime
+from datetime import datetime, timezone
 from io import BytesIO
 from pathlib import Path
 
@@ -11,6 +11,20 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.config import BACKUP_DIR, PHOTO_DIR
 from app.models import Tea, Report, Note, ConfigItem
 from app.services import tea_service, note_service, config_service
+
+_DT_FMT = "%Y-%m-%d %H:%M:%S"
+
+
+def _parse_dt(s: str | None) -> datetime:
+    """将备份中的日期字符串解析为 datetime 对象（UTC）"""
+    if not s:
+        return datetime.now(timezone.utc)
+    try:
+        # 兼容 'T' 和空格分隔
+        dt = datetime.strptime(s.replace("T", " "), _DT_FMT)
+        return dt.replace(tzinfo=timezone.utc)
+    except (ValueError, TypeError):
+        return datetime.now(timezone.utc)
 
 
 def _ensure_dirs():
@@ -98,7 +112,7 @@ async def restore_backup(db: AsyncSession, file_bytes: bytes) -> dict:
             if "teas.json" not in names:
                 raise ValueError("无效的备份文件：缺少 teas.json")
 
-            now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            now = datetime.now(timezone.utc)
 
             # Clear existing data
             await db.execute(sql_delete(Tea))
@@ -119,8 +133,8 @@ async def restore_backup(db: AsyncSession, file_bytes: bytes) -> dict:
                     note=t.get("note", ""),
                     photo=t.get("photo", ""),
                     extra_fields=extra,
-                    created_at=now,
-                    updated_at=now,
+                    created_at=_parse_dt(t.get("created_at")),
+                    updated_at=_parse_dt(t.get("updated_at")),
                 )
                 db.add(tea)
 
@@ -130,7 +144,7 @@ async def restore_backup(db: AsyncSession, file_bytes: bytes) -> dict:
                 db.add(Report(
                     id=1,
                     content=report.get("content", ""),
-                    created_at=report.get("created_at", now),
+                    created_at=_parse_dt(report.get("created_at")),
                     stale=report.get("stale", False),
                 ))
 
@@ -156,8 +170,8 @@ async def restore_backup(db: AsyncSession, file_bytes: bytes) -> dict:
                         content=n["content"],
                         source=n.get("source", "manual"),
                         tags=n.get("tags", []),
-                        created_at=n.get("created_at", now),
-                        updated_at=n.get("updated_at", now),
+                        created_at=_parse_dt(n.get("created_at")),
+                        updated_at=_parse_dt(n.get("updated_at")),
                     )
                     db.add(note)
 

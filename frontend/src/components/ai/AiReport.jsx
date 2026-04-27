@@ -1,7 +1,9 @@
 import { useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import DOMPurify from 'dompurify';
 import { useTeaStore } from '../../stores/useTeaStore';
+import { calcTotalScore } from '../../utils/score';
 import { aiAnalyze } from '../../api/ai';
 import { readSSEStream } from '../../hooks/useSSE';
 
@@ -72,7 +74,7 @@ export default function AiReport() {
         th, td { border: 1px solid #e8ddd0; padding: 6px 10px; font-size: 0.9rem; }
         th { background: #faf6f1; }
       </style>
-      </head><body>${document.getElementById('report-content')?.innerHTML || ''}</body></html>
+      </head><body>${DOMPurify.sanitize(document.getElementById('report-content')?.innerHTML || '')}</body></html>
     `);
     printWin.document.close();
     printWin.print();
@@ -123,13 +125,9 @@ export default function AiReport() {
 
   // Find best tea for report header
   const best = scoredTeas.length > 0
-    ? scoredTeas.reduce((a, b) => {
-        const ta = Object.values(a.scores || {}).reduce((s, v) => s + (Number(v) || 0), 0);
-        const tb = Object.values(b.scores || {}).reduce((s, v) => s + (Number(v) || 0), 0);
-        return ta > tb ? a : b;
-      })
+    ? scoredTeas.reduce((a, b) => calcTotalScore(a) > calcTotalScore(b) ? a : b)
     : null;
-  const bestScore = best ? Object.values(best.scores || {}).reduce((s, v) => s + (Number(v) || 0), 0) : 0;
+  const bestScore = best ? calcTotalScore(best) : 0;
 
   return (
     <div>
@@ -156,7 +154,7 @@ export default function AiReport() {
         <div className="ai-score-overview">
           <div className="ai-score-overview-title">📊 评分速览</div>
           {scoredTeas.map(tea => {
-            const total = Object.values(tea.scores || {}).reduce((s, v) => s + (Number(v) || 0), 0);
+            const total = calcTotalScore(tea);
             return (
               <div key={tea.id} className="ai-score-item">
                 <span className="ai-score-item-name">{tea.name}</span>

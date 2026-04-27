@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -6,6 +6,16 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.config import PHOTO_DIR
 from app.models import Tea, Report
 from app.services import config_service
+
+_DT_FMT = "%Y-%m-%d %H:%M:%S"
+
+
+def _fmt_dt(dt: datetime | None) -> str:
+    if dt is None:
+        return ""
+    if dt.tzinfo is None:
+        dt = dt.replace(tzinfo=timezone.utc)
+    return dt.strftime(_DT_FMT)
 
 
 def _tea_to_dict(tea: Tea) -> dict:
@@ -15,14 +25,16 @@ def _tea_to_dict(tea: Tea) -> dict:
         "scores": tea.scores or {},
         "note": tea.note or "",
         "photo": tea.photo or "",
+        "created_at": _fmt_dt(tea.created_at),
+        "updated_at": _fmt_dt(tea.updated_at),
     }
     if tea.extra_fields:
         result.update(tea.extra_fields)
     return result
 
 
-def _now() -> str:
-    return datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+def _now() -> datetime:
+    return datetime.now(timezone.utc)
 
 
 async def get_all_teas(db: AsyncSession) -> list[dict]:
@@ -102,7 +114,7 @@ async def get_report(db: AsyncSession) -> dict | None:
     report = result.scalar_one_or_none()
     if not report:
         return None
-    return {"content": report.content, "created_at": report.created_at, "stale": report.stale}
+    return {"content": report.content, "created_at": _fmt_dt(report.created_at), "stale": report.stale}
 
 
 async def delete_report(db: AsyncSession):

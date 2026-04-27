@@ -37,3 +37,7 @@ class DerivedMetricsUpdate(BaseModel):
 
 class MessageResponse(BaseModel):
     message: str
+
+
+class ChatRequest(BaseModel):
+    messages: list[dict]

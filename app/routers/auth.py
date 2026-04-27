@@ -47,7 +47,7 @@ async def register(
     if result.scalar_one_or_none():
         raise AppError("用户名已存在", 409)
 
-    now = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S")
+    now = datetime.now(timezone.utc)
     user = User(
         username=body.username,
         password_hash=hash_password(body.password),
@@ -70,7 +70,7 @@ async def register_first_user(
     if result.scalar() > 0:
         raise AppError("已有用户注册，请使用正常注册流程", 400)
 
-    now = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S")
+    now = datetime.now(timezone.utc)
     user = User(
         username=body.username,
         password_hash=hash_password(body.password),
@@ -139,7 +139,7 @@ async def change_password(
         raise AppError("原密码错误", 400)
 
     user.password_hash = hash_password(body.new_password)
-    user.updated_at = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S")
+    user.updated_at = datetime.now(timezone.utc)
     await db.commit()
     return {"message": "密码已更新"}
 
@@ -176,7 +176,7 @@ async def change_role(
             raise AppError("系统必须保留至少一个管理员", 400)
 
     user.role = body.role
-    user.updated_at = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S")
+    user.updated_at = datetime.now(timezone.utc)
     await db.commit()
     await db.refresh(user)
     return user

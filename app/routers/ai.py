@@ -5,12 +5,14 @@ from fastapi.responses import StreamingResponse
 from starlette.background import BackgroundTask
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.schemas.config import ChatRequest
+from app.utils.auth import get_current_user
 from app.utils.rate_limit import limiter
 from app.db import get_db, async_session_maker
 from app.services import ai_service, tea_service
 from app.utils.errors import AppError
 
-router = APIRouter()
+router = APIRouter(dependencies=[Depends(get_current_user)])
 
 
 @router.post("/api/ai/analyze")
@@ -64,8 +66,8 @@ async def ai_analyze(request: Request, db: AsyncSession = Depends(get_db)):
 
 @router.post("/api/ai/chat")
 @limiter.limit("10/minute")
-async def ai_chat(request: Request, body: dict, db: AsyncSession = Depends(get_db)):
-    messages = body.get("messages", [])
+async def ai_chat(request: Request, body: ChatRequest, db: AsyncSession = Depends(get_db)):
+    messages = body.messages
     if not messages:
         raise AppError("消息不能为空")
 

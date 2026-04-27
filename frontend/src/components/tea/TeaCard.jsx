@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import StarRating from './StarRating';
+import { calcTotalScore } from '../../utils/score';
 
 export default function TeaCard({ tea, dimensions, teaFields, onScore, onNote, onUploadPhoto, onEdit }) {
   const [noteText, setNoteText] = useState(tea.note || '');
@@ -37,7 +38,7 @@ export default function TeaCard({ tea, dimensions, teaFields, onScore, onNote, o
     }
   };
 
-  const totalScore = Object.values(tea.scores || {}).reduce((sum, v) => sum + (Number(v) || 0), 0);
+  const totalScore = calcTotalScore(tea);
   const maxScore = dimensions.length * 5;
   const pct = maxScore > 0 ? Math.round((totalScore / maxScore) * 100) : 0;
 
