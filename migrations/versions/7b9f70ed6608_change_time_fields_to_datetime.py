@@ -56,7 +56,7 @@ def _rebuild_table(table, datetime_cols):
         if idx[2]:  # unique
             idx_info = conn.execute(sa.text(f"PRAGMA index_info([{idx[1]}])")).fetchall()
             for info in idx_info:
-                unique_cols.add(col_names[info[2]])
+                unique_cols.add(info[2])
 
     # 构建 CREATE TABLE 语句
     col_defs_str = ", ".join(col_defs)
@@ -121,7 +121,7 @@ def downgrade() -> None:
             if idx[2]:
                 idx_info = conn.execute(sa.text(f"PRAGMA index_info([{idx[1]}])")).fetchall()
                 for info in idx_info:
-                    unique_cols.add(col_names[info[2]])
+                    unique_cols.add(info[2])
 
         col_defs_str = ", ".join(col_defs)
         unique_clause = ""
