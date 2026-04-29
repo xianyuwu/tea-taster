@@ -21,6 +21,7 @@ const SUB_TABS = [
   { key: 'score', label: '逐款打分' },
   { key: 'table', label: '对比表格' },
   { key: 'rank', label: '排名结果' },
+  { key: 'report', label: 'AI 报告' },
 ];
 
 export default function TastingPage() {
@@ -270,13 +271,11 @@ export default function TastingPage() {
             )}
 
             {subTab === 'table' && <ComparisonTable />}
-            {subTab === 'rank' && (
-              <>
-                <RankList />
-                <div className="ai-section">
-                  <AiReport />
-                </div>
-              </>
+            {subTab === 'rank' && <RankList />}
+            {subTab === 'report' && (
+              <div className="ai-section">
+                <AiReport />
+              </div>
             )}
           </div>
         </>

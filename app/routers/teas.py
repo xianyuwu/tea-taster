@@ -3,7 +3,7 @@ from io import BytesIO
 from pathlib import Path
 
 from fastapi import APIRouter, Depends, UploadFile, File
-from PIL import Image
+from PIL import Image, ImageOps
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -72,6 +72,8 @@ async def upload_photo(tea_id: int, photo: UploadFile = File(...), db: AsyncSess
         img = Image.open(BytesIO(content))
         img.verify()
         img = Image.open(BytesIO(content))
+        # 根据手机拍照时记录的 EXIF 方向信息旋转像素，避免照片横过来
+        img = ImageOps.exif_transpose(img)
     except Exception:
         raise AppError("无法解析图片文件")
 

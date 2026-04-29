@@ -8,6 +8,7 @@ export const useTeaStore = create((set, get) => ({
   teaFields: [],
   derivedMetrics: [],
   report: null,
+  recommendText: '',
   reportStale: false,
   currentCardIndex: 0,
 
@@ -26,6 +27,7 @@ export const useTeaStore = create((set, get) => ({
       teaFields: teaFields || [],
       derivedMetrics: derivedMetrics || [],
       report: report?.content || null,
+      recommendText: report?.recommend || '',
       reportMeta: report ? { created_at: report.created_at, stale: report.stale } : null,
     });
   },
@@ -33,12 +35,12 @@ export const useTeaStore = create((set, get) => ({
   addTea: async (data) => {
     const tea = await teasApi.createTea(data);
     const teas = [...get().teas, tea];
-    set({ teas, currentCardIndex: teas.length - 1, reportStale: true });
+    set({ teas, currentCardIndex: teas.length - 1, reportStale: true, recommendText: '' });
   },
 
   updateTea: async (id, data) => {
     const updated = await teasApi.updateTea(id, data);
-    set({ teas: get().teas.map(t => t.id === id ? { ...t, ...updated } : t), reportStale: true });
+    set({ teas: get().teas.map(t => t.id === id ? { ...t, ...updated } : t), reportStale: true, recommendText: '' });
   },
 
   updateTeaLocal: (id, data) => {
@@ -49,7 +51,7 @@ export const useTeaStore = create((set, get) => ({
     await teasApi.deleteTea(id);
     const teas = get().teas.filter(t => t.id !== id);
     const idx = Math.min(get().currentCardIndex, Math.max(0, teas.length - 1));
-    set({ teas, currentCardIndex: idx, reportStale: true });
+    set({ teas, currentCardIndex: idx, reportStale: true, recommendText: '' });
   },
 
   setScore: async (id, key, val) => {
@@ -58,7 +60,7 @@ export const useTeaStore = create((set, get) => ({
     const currentVal = tea.scores?.[key] || 0;
     const newVal = currentVal === val ? 0 : val;
     const newScores = { ...tea.scores, [key]: newVal };
-    set({ teas: get().teas.map(t => t.id === id ? { ...t, scores: newScores } : t), reportStale: true });
+    set({ teas: get().teas.map(t => t.id === id ? { ...t, scores: newScores } : t), reportStale: true, recommendText: '' });
     await teasApi.updateTea(id, { scores: newScores });
   },
 
@@ -70,6 +72,8 @@ export const useTeaStore = create((set, get) => ({
   setCurrentCard: (idx) => set({ currentCardIndex: idx }),
 
   setReport: (content) => set({ report: content, reportStale: false }),
+
+  setRecommendText: (text) => set({ recommendText: text }),
 
   setReportMeta: (meta) => set(state => ({
     reportMeta: meta ? { ...state.reportMeta, ...meta } : null,

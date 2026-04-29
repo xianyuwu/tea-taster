@@ -114,7 +114,7 @@ async def get_report(db: AsyncSession) -> dict | None:
     report = result.scalar_one_or_none()
     if not report:
         return None
-    return {"content": report.content, "created_at": _fmt_dt(report.created_at), "stale": report.stale}
+    return {"content": report.content, "recommend": report.recommend or "", "created_at": _fmt_dt(report.created_at), "stale": report.stale}
 
 
 async def delete_report(db: AsyncSession):
@@ -135,6 +135,16 @@ async def save_report(db: AsyncSession, content: str):
         report.stale = False
     else:
         db.add(Report(id=1, content=content, created_at=now, stale=False))
+    await db.commit()
+
+
+async def save_recommend(db: AsyncSession, text: str):
+    result = await db.execute(select(Report).where(Report.id == 1))
+    report = result.scalar_one_or_none()
+    if report:
+        report.recommend = text
+    else:
+        db.add(Report(id=1, content="", recommend=text, created_at=_now(), stale=False))
     await db.commit()
 
 

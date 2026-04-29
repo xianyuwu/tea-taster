@@ -843,21 +843,103 @@ tr:hover { background: #f0e6d9; }
 }
 
 .recommend-box {
-  text-align: center;
-  margin-top: 16px;
-  padding: 14px;
-  background: #fff9e6;
-  border-radius: 10px;
-  font-size: 0.95rem;
+  margin-top: 20px;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(92,58,33,0.08);
+  display: flex;
+  overflow: hidden;
 }
-.recommend-box img {
+/* 左侧：照片 + 茶名 + 分数 */
+.recommend-left {
+  width: 170px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 20px 16px;
+  background: linear-gradient(135deg, #fff9e6, #fff5d6);
+  border-right: 1px solid #f0e6d9;
+}
+.recommend-photo {
   width: 64px;
   height: 64px;
-  border-radius: 10px;
+  border-radius: 50%;
   object-fit: cover;
-  display: block;
-  margin: 0 auto 8px;
   border: 3px solid #d4a017;
+}
+.recommend-photo-placeholder {
+  font-size: 2.8rem;
+  display: block;
+  line-height: 64px;
+  text-align: center;
+}
+.recommend-name {
+  font-weight: 700;
+  color: #5c3a21;
+  font-size: 0.88rem;
+  margin-top: 10px;
+  text-align: center;
+  line-height: 1.3;
+}
+.recommend-score {
+  color: #8a7060;
+  font-size: 0.8rem;
+  margin-top: 4px;
+}
+.recommend-badge {
+  margin-top: 8px;
+  padding: 2px 10px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #d4a017, #c49a3c);
+  color: #fff;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+/* 右侧：AI 文字 + 按钮 */
+.recommend-right {
+  flex: 1;
+  padding: 18px 20px;
+  display: flex;
+  flex-direction: column;
+}
+.recommend-text {
+  color: #5c3a21;
+  font-size: 0.92rem;
+  line-height: 1.8;
+  flex: 1;
+}
+.recommend-loading {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.recommend-btn-wrap {
+  margin-top: 12px;
+  text-align: right;
+}
+.recommend-btn {
+  display: inline-block;
+  padding: 6px 16px;
+  border: 1px solid #e8ddd0;
+  border-radius: 6px;
+  background: #faf6f1;
+  color: #8b5e3c;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.recommend-btn:hover:not(:disabled) {
+  background: #8b5e3c;
+  color: #fff;
+  border-color: #8b5e3c;
+}
+.recommend-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 /* AI 分析按钮 */
@@ -932,6 +1014,20 @@ tr:hover { background: #f0e6d9; }
   align-items: center;
   gap: 6px;
 }
+.ai-radar-toggle-all {
+  margin-left: auto;
+  background: none;
+  border: 1px solid #d4c5b5;
+  border-radius: 4px;
+  padding: 2px 10px;
+  font-size: 0.75rem;
+  color: #7a6b5d;
+  cursor: pointer;
+}
+.ai-radar-toggle-all:hover {
+  background: #f5ede4;
+  border-color: #b8a898;
+}
 .ai-score-item {
   display: flex;
   align-items: center;
@@ -979,6 +1075,59 @@ tr:hover { background: #f0e6d9; }
   color: #5c3a21;
   min-width: 50px;
   text-align: right;
+}
+
+/* ─── 雷达图 ─── */
+.ai-radar-wrap {
+  background: #fff;
+  border-radius: 12px;
+  padding: 20px 10px 10px;
+  margin-top: 16px;
+  margin-bottom: 14px;
+  box-shadow: 0 2px 10px rgba(92,58,33,0.07);
+  border: 1px solid #e8ddd0;
+  animation: aiCardFadeIn 0.4s ease;
+}
+.ai-radar-svg {
+  width: 100%;
+  max-width: 380px;
+  display: block;
+  margin: 0 auto;
+}
+.ai-radar-grid {
+  fill: none;
+  stroke: #e8ddd0;
+  stroke-width: 1;
+}
+.ai-radar-axis {
+  stroke: #e8ddd0;
+  stroke-width: 1;
+}
+.ai-radar-label {
+  font-size: 11px;
+  fill: #8a7060;
+  font-weight: 600;
+}
+.ai-radar-legend {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  margin-top: 8px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+.ai-radar-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.82rem;
+  color: #5c3a21;
+}
+.ai-radar-legend-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
 }
 
 /* 过期警告 */
@@ -1078,6 +1227,46 @@ tr:hover { background: #f0e6d9; }
 .ai-card-body td + td, .ai-card-body th + th { border-left: 1px solid #e8ddd0; }
 .ai-card-body code { background: #f0e6d9; padding: 1px 5px; border-radius: 4px; font-size: 0.84rem; }
 .ai-card-body hr { border: none; border-top: 1px solid #e8ddd0; margin: 14px 0; }
+
+/* 推荐卡片 */
+.ai-pick-item {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  padding: 10px 0;
+  border-bottom: 1px solid #f0e6d9;
+}
+.ai-pick-item:last-child { border-bottom: none; }
+.ai-pick-icon { font-size: 1.4rem; flex-shrink: 0; margin-top: 2px; }
+.ai-pick-item strong { color: #5c3a21; }
+.ai-pick-item p { margin: 4px 0 0; color: #6d5a4a; font-size: 0.84rem; }
+
+/* 风味标签 */
+.ai-tag-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 8px 0;
+  border-bottom: 1px solid #f0e6d9;
+}
+.ai-tag-row:last-child { border-bottom: none; }
+.ai-tag-tea-name {
+  font-weight: 600;
+  color: #5c3a21;
+  flex-shrink: 0;
+  min-width: 100px;
+  font-size: 0.84rem;
+}
+.ai-tag-list { display: flex; flex-wrap: wrap; gap: 5px; }
+.ai-tag-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  background: #f0e6d9;
+  color: #8b5e3c;
+  border-radius: 10px;
+  font-size: 0.76rem;
+  font-weight: 500;
+}
 
 /* 操作按钮 */
 .ai-report-actions {
@@ -1372,13 +1561,61 @@ tr:hover { background: #f0e6d9; }
 .chat-bubble p:last-child { margin-bottom: 0; }
 .chat-bubble ul, .chat-bubble ol { padding-left: 16px; margin: 6px 0; }
 
+/* AI 气泡操作按钮 */
+.chat-msg-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 6px;
+  padding-top: 6px;
+  border-top: 1px solid #f0e6d9;
+}
 .collect-hint {
   font-size: 11px;
   color: #c4b0a0;
-  margin-top: 10px;
-  padding-top: 8px;
-  border-top: 1px solid #f0e6d9;
   user-select: none;
+  margin-top: 0;
+  padding-top: 0;
+  border-top: none;
+}
+.chat-msg-actions-right {
+  display: flex;
+  gap: 2px;
+}
+.chat-action-btn.like,
+.chat-action-btn.dislike,
+.chat-action-btn.copy,
+.chat-action-btn.regenerate {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 13px;
+  color: #c8baa8;
+  padding: 3px 7px;
+  border-radius: 6px;
+  transition: all 0.15s ease;
+  line-height: 1;
+}
+.chat-action-btn.like:hover,
+.chat-action-btn.dislike:hover,
+.chat-action-btn.copy:hover,
+.chat-action-btn.regenerate:hover {
+  color: #8b5e3c;
+  background: #faf5f0;
+}
+.chat-action-btn.active {
+  color: #8b5e3c;
+  background: #f0e6d9;
+  font-weight: 600;
+  transform: scale(1.15);
+}
+.chat-action-btn.copied {
+  color: #6a9f3b;
+  background: #f0f6ea;
+}
+.chat-action-btn.regenerate:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
 }
 
 /* 聊天底部 */

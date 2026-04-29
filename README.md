@@ -7,15 +7,15 @@
 <table>
   <tr>
     <td align="center"><b>品鉴打分</b></td>
-    <td align="center"><b>横向对比</b></td>
+    <td align="center"><b>对比表格</b></td>
   </tr>
   <tr>
     <td><img src="screenshots/index.png" width="480" /></td>
     <td><img src="screenshots/comparison-table.png" width="480" /></td>
   </tr>
   <tr>
-    <td align="center"><b>排名推荐</b></td>
-    <td align="center"><b>AI 品鉴分析</b></td>
+    <td align="center"><b>排名结果</b></td>
+    <td align="center"><b>AI 报告</b></td>
   </tr>
   <tr>
     <td><img src="screenshots/ranked-list.png" width="480" /></td>
@@ -31,6 +31,7 @@
   </tr>
 </table>
 
+
 ## ✨ 功能特性
 
 | 功能 | 说明 |
@@ -38,6 +39,7 @@
 | 🎯 逐款打分 | 七大维度（香气、汤色、醇厚度、顺滑度、回甘、不苦涩、整体愉悦），每项 1-5 分 |
 | 📊 对比表格 | 多款茶样横向对比，信息行 + 评分维度 + 派生指标，最高分自动高亮 |
 | 🏆 排名推荐 | 可视化排名进度条，自动推荐得分最高的茶样 |
+| 📡 风味雷达图 | SVG 雷达图展示各款茶的风味轮廓，支持多茶叠加对比，可交互勾选显示/隐藏 |
 | 📷 茶样照片 | 支持上传茶样图片，自动缩放优化 |
 | ✏️ 动态字段 | 茶样信息字段（品种、产地、价格等）可在后台自由配置 |
 | 💰 派生指标 | 根据价格和净重自动计算单价，色块渐变直观对比。指标可在后台自定义 |
@@ -120,6 +122,40 @@ API Key 优先级：环境变量 > `.env` 文件 > 管理后台配置
 | 阿里通义 | `https://dashscope.aliyuncs.com/compatible-mode/v1` | `qwen-plus` |
 | 月之暗面 | `https://api.moonshot.cn/v1` | `moonshot-v1-8k` |
 
+## 🧠 AI 功能实现
+
+系统有三个 AI 功能，都通过 OpenAI 兼容协议调用大模型，SSE 流式返回。
+
+### 1. AI 品鉴分析报告（`POST /api/ai/analyze`）
+
+**触发**：品鉴页 → 报告标签 → 点击「AI 分析」
+
+1. 后端从数据库收集所有有评分的茶样，拼成文本（各维度分数、总分、备注、额外字段）
+2. System Prompt 定义 AI 为「资深武夷岩茶品鉴师」，要求从逐款点评、横向对比、选购建议、冲泡建议四个角度输出（可在管理后台自定义）
+3. 调用大模型流式生成，每个 SSE chunk 实时推送到前端逐字渲染
+4. 流结束后 BackgroundTask 将完整报告写入数据库（单例 `Report.id=1`，重新分析覆盖）
+5. 茶样分数变更时自动标记报告为「过时」，前端提示重新分析
+
+### 2. AI 购买推荐理由（`POST /api/ai/recommend`）
+
+**触发**：排名列表页 → 点击「AI 生成推荐理由」
+
+1. 后端收集评分数据，按总分排序找出第一名茶样
+2. 使用独立的推荐 Prompt（不含 System Prompt），要求为第一名茶写 4-5 句购买推荐：核心风味、消费场景、独特优势、总结推荐语
+3. 流式返回后存入 `Report.recommend` 列（与主报告分开存储）
+4. 前端在排名列表的推荐卡片中展示，支持重新生成
+
+### 3. AI 品鉴助手对话（`POST /api/ai/chat`）
+
+**触发**：点击右下角 🤖 浮动按钮打开聊天面板
+
+1. 首次对话时前端自动注入两条隐藏上下文：评分数据文本 + 已有报告内容
+2. 每次请求携带完整对话历史（上下文 + 所有历史消息 + 当前问题），后端透传给大模型
+3. 对话不做持久化，历史存在前端 Zustand store 中
+4. 支持重新生成、点赞/点踩（持久化到数据库）、选中文字收藏到笔记
+
+**设计要点**：对话管理在前端，后端只做 LLM 代理；和报告共用同一个 System Prompt，保证角色一致。
+
 ## 🏗️ 系统架构
 
 <p align="center">
@@ -132,7 +168,7 @@ app/
 ├── __init__.py          # FastAPI 工厂 + 中间件
 ├── config.py            # 配置（pydantic-settings）
 ├── db.py                # 数据库引擎 + 会话管理
-├── models.py            # ORM 模型（User, Tea, Report, Note, ConfigItem）
+├── models.py            # ORM 模型（User, Tea, Report, Note, ConfigItem, AiFeedback）
 ├── routers/             # 7 个 APIRouter
 │   ├── auth.py          # 注册/登录/刷新/改密码
 │   ├── teas.py          # 茶样 CRUD + 照片上传
@@ -193,8 +229,11 @@ frontend/src/
 
 | 方法 | 路径 | 说明 |
 |------|------|------|
-| `POST` | `/api/ai/analyze` | AI 品鉴分析（SSE 流式） |
-| `POST` | `/api/ai/chat` | AI 对话（SSE 流式） |
+| `POST` | `/api/ai/analyze` | AI 品鉴分析报告（SSE 流式） |
+| `POST` | `/api/ai/recommend` | AI 购买推荐理由（SSE 流式） |
+| `POST` | `/api/ai/chat` | AI 品鉴助手对话（SSE 流式） |
+| `POST` | `/api/ai/feedback` | 提交对话反馈（点赞/点踩） |
+| `GET` | `/api/ai/feedback` | 批量获取对话反馈状态 |
 | `GET` | `/api/report` | 获取已保存的报告 |
 | `DELETE` | `/api/report` | 删除报告 |
 

@@ -4,7 +4,7 @@ import remarkGfm from 'remark-gfm';
 import { useChatStore } from '../../stores/useChatStore';
 import { useNoteStore } from '../../stores/useNoteStore';
 import { useTeaStore } from '../../stores/useTeaStore';
-import { aiChat } from '../../api/ai';
+import { aiChat, submitFeedback, getFeedback } from '../../api/ai';
 import { readSSEStream } from '../../hooks/useSSE';
 
 export default function AiChat() {
@@ -16,6 +16,9 @@ export default function AiChat() {
   const appendAssistant = useChatStore(s => s.appendAssistant);
   const finalizeAssistant = useChatStore(s => s.finalizeAssistant);
   const reset = useChatStore(s => s.reset);
+  const setFeedback = useChatStore(s => s.setFeedback);
+  const loadFeedback = useChatStore(s => s.loadFeedback);
+  const regenerateStore = useChatStore(s => s.regenerate);
 
   const [input, setInput] = useState('');
   const [streaming, setStreaming] = useState(false);
@@ -28,6 +31,7 @@ export default function AiChat() {
   const [showCollectPanel, setShowCollectPanel] = useState(false);
   const [panelPos, setPanelPos] = useState({ x: 0, y: 0 });
   const [toast, setToast] = useState(null);
+  const [copiedId, setCopiedId] = useState(null);
   const collectPanelRef = useRef(null);
   const collectBtnRef = useRef(null);
 
@@ -37,6 +41,81 @@ export default function AiChat() {
 
   useEffect(() => { scrollToBottom(); }, [history]);
   useEffect(() => { if (open) inputRef.current?.focus(); }, [open]);
+
+  // 面板打开时从后端加载反馈状态
+  useEffect(() => {
+    if (!open) return;
+    const visibleMsgs = useChatStore.getState().history.filter(m => !m._context && m.role === 'assistant' && m._id);
+    if (visibleMsgs.length === 0) return;
+    const ids = visibleMsgs.map(m => m._id);
+    getFeedback(ids).then(res => {
+      if (res?.data) loadFeedback(res.data);
+    }).catch(() => {});
+  }, [open]);
+
+  // 判断一条 assistant 消息是否是最后一条可见的（用于控制"重新生成"按钮显示）
+  const isLastAssistant = (msg) => {
+    const visible = history.filter(m => !m._context);
+    for (let i = visible.length - 1; i >= 0; i--) {
+      if (visible[i].role === 'assistant') return visible[i]._id === msg._id;
+    }
+    return false;
+  };
+
+  // 点赞/点踩处理
+  const handleFeedback = async (msg, type) => {
+    const newFeedback = msg._feedback === type ? null : type;
+    setFeedback(msg._id, newFeedback);
+    try {
+      await submitFeedback({
+        message_id: msg._id,
+        feedback: type,
+        message_content: msg.content?.substring(0, 200),
+      });
+      // 如果取消了反馈（再次点击相同的），再调一次清掉后端
+      if (newFeedback === null) {
+        // 后端 save_feedback 已经处理了取消逻辑
+      }
+    } catch {
+      // 回滚
+      setFeedback(msg._id, msg._feedback);
+    }
+  };
+
+  // 复制消息内容
+  const handleCopy = async (msg) => {
+    try {
+      await navigator.clipboard.writeText(msg.content);
+      setCopiedId(msg._id);
+      setTimeout(() => setCopiedId(null), 1500);
+    } catch { /* ignore */ }
+  };
+
+  // 重新生成
+  const handleRegenerate = useCallback(async () => {
+    if (streaming) return;
+    const userMsg = regenerateStore();
+    if (!userMsg) return;
+    setStreaming(true);
+    appendAssistant('');
+
+    const currentHistory = useChatStore.getState().history;
+    const messages = currentHistory.map(m => ({ role: m.role, content: m.content }));
+
+    let fullText = '';
+    try {
+      const stream = await aiChat(messages);
+      await readSSEStream(
+        stream,
+        (chunk) => { fullText += chunk; appendAssistant(fullText); },
+        () => { finalizeAssistant(); setStreaming(false); }
+      );
+    } catch (err) {
+      appendAssistant(`抱歉，出错了：${err.message}`);
+      finalizeAssistant();
+      setStreaming(false);
+    }
+  }, [streaming, regenerateStore, appendAssistant, finalizeAssistant]);
 
   const checkChatSelection = () => {
     const sel = window.getSelection();
@@ -87,6 +166,8 @@ export default function AiChat() {
     addUserMessage(msg);
     setInput('');
     setStreaming(true);
+    // 立即插入一条空的 assistant 消息，显示"思考中"动画
+    appendAssistant('');
 
     // 用最新 history（含刚注入的上下文）拼接消息
     const currentHistory = useChatStore.getState().history;
@@ -302,11 +383,46 @@ export default function AiChat() {
                 <div className="chat-bubble">
                   {msg.role === 'assistant' ? (
                     <>
-                      <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                        {msg.content}
-                      </ReactMarkdown>
-                      {msg._streaming && <span className="ai-cursor"></span>}
-                      {!msg._streaming && <div className="collect-hint">💡 选中文字可收藏到笔记</div>}
+                      {msg._streaming && !msg.content ? (
+                        <div className="ai-thinking-dots"><span></span><span></span><span></span></div>
+                      ) : (
+                        <>
+                          <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                            {msg.content}
+                          </ReactMarkdown>
+                          {msg._streaming && <span className="ai-cursor"></span>}
+                        </>
+                      )}
+                      {!msg._streaming && (
+                        <div className="chat-msg-actions">
+                          <span className="collect-hint">💡 选中文字可收藏到笔记</span>
+                          <span className="chat-msg-actions-right">
+                            <button
+                              className={`chat-action-btn like${msg._feedback === 'up' ? ' active' : ''}`}
+                              onClick={() => handleFeedback(msg, 'up')}
+                              title="点赞"
+                            >👍</button>
+                            <button
+                              className={`chat-action-btn dislike${msg._feedback === 'down' ? ' active' : ''}`}
+                              onClick={() => handleFeedback(msg, 'down')}
+                              title="点踩"
+                            >👎</button>
+                            <button
+                              className={`chat-action-btn copy${copiedId === msg._id ? ' copied' : ''}`}
+                              onClick={() => handleCopy(msg)}
+                              title="复制"
+                            >{copiedId === msg._id ? '✓' : '📋'}</button>
+                            {isLastAssistant(msg) && (
+                              <button
+                                className="chat-action-btn regenerate"
+                                onClick={handleRegenerate}
+                                disabled={streaming}
+                                title="重新生成"
+                              >🔄</button>
+                            )}
+                          </span>
+                        </div>
+                      )}
                     </>
                   ) : (
                     msg.content

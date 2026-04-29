@@ -1,4 +1,4 @@
-import { apiFetch, setToken, clearToken } from './client';
+import { apiFetch, setToken, setRefreshToken, clearToken } from './client';
 
 export async function registerFirst(username, password) {
   const data = await apiFetch('/api/auth/register-first', {
@@ -6,6 +6,7 @@ export async function registerFirst(username, password) {
     body: JSON.stringify({ username, password }),
   });
   setToken(data.access_token);
+  setRefreshToken(data.refresh_token);
   return data;
 }
 
@@ -22,6 +23,7 @@ export async function login(username, password) {
     body: JSON.stringify({ username, password }),
   });
   setToken(data.access_token);
+  setRefreshToken(data.refresh_token);
   return data;
 }
 

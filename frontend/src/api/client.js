@@ -1,4 +1,5 @@
 const TOKEN_KEY = 'tea_taster_token';
+const REFRESH_KEY = 'tea_taster_refresh';
 
 export function setToken(token) {
   localStorage.setItem(TOKEN_KEY, token);
@@ -8,21 +9,31 @@ export function getToken() {
   return localStorage.getItem(TOKEN_KEY);
 }
 
+export function setRefreshToken(token) {
+  localStorage.setItem(REFRESH_KEY, token);
+}
+
+export function getRefreshToken() {
+  return localStorage.getItem(REFRESH_KEY);
+}
+
 export function clearToken() {
   localStorage.removeItem(TOKEN_KEY);
+  localStorage.removeItem(REFRESH_KEY);
 }
 
 async function tryRefreshToken() {
-  const token = getToken();
-  if (!token) return false;
+  const refreshToken = getRefreshToken();
+  if (!refreshToken) return false;
   try {
     const res = await fetch('/api/auth/refresh', {
       method: 'POST',
-      headers: { 'Authorization': `Bearer ${token}` },
+      headers: { 'Authorization': `Bearer ${refreshToken}` },
     });
     if (!res.ok) return false;
     const data = await res.json();
     setToken(data.access_token);
+    setRefreshToken(data.refresh_token);
     return true;
   } catch {
     return false;

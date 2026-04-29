@@ -80,10 +80,79 @@ export default function AiReport() {
     printWin.print();
   };
 
-  // Split report into sections by ## headings
-  const renderReport = () => {
-    if (!report) return null;
+  // 渲染 JSON 结构化报告（sections + tags + picks）
+  const renderJsonReport = (data) => {
+    const cards = [];
 
+    // sections 卡片（主要内容）
+    if (data.sections?.length) {
+      data.sections.forEach((sec, i) => {
+        cards.push(
+          <div key={`sec-${i}`} className="ai-card">
+            <div className="ai-card-title">
+              <span>{sec.icon || SECTION_ICONS[i % SECTION_ICONS.length]}</span>
+              {sec.title}
+            </div>
+            <div className="ai-card-body">
+              <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                {sec.content}
+              </ReactMarkdown>
+            </div>
+          </div>
+        );
+      });
+    }
+
+    // picks 推荐卡片
+    if (data.picks?.length) {
+      cards.push(
+        <div key="picks" className="ai-card">
+          <div className="ai-card-title">
+            <span>🏆</span>推荐之选
+          </div>
+          <div className="ai-card-body">
+            {data.picks.map((pick, i) => (
+              <div key={i} className="ai-pick-item">
+                <span className="ai-pick-icon">{pick.icon}</span>
+                <div>
+                  <strong>{pick.title}：{pick.tea}</strong>
+                  <p>{pick.reason}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      );
+    }
+
+    // tags 标签卡片
+    if (data.tags && Object.keys(data.tags).length) {
+      cards.push(
+        <div key="tags" className="ai-card">
+          <div className="ai-card-title">
+            <span>🏷️</span>风味标签
+          </div>
+          <div className="ai-card-body">
+            {Object.entries(data.tags).map(([tea, tagList]) => (
+              <div key={tea} className="ai-tag-row">
+                <span className="ai-tag-tea-name">{tea}</span>
+                <span className="ai-tag-list">
+                  {tagList.map((tag, j) => (
+                    <span key={j} className="ai-tag-badge">{tag}</span>
+                  ))}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+      );
+    }
+
+    return cards;
+  };
+
+  // 按 ## 标题拆分为卡片段落（markdown 格式）
+  const renderMarkdownReport = () => {
     const parts = report.split(/(^## .+$)/m);
     const sections = [];
     let currentSection = null;
@@ -96,9 +165,7 @@ export default function AiReport() {
       } else if (currentSection) {
         currentSection.content += part;
       } else {
-        if (part.trim()) {
-          sections.push({ title: null, content: part });
-        }
+        if (part.trim()) sections.push({ title: null, content: part });
       }
     }
     if (currentSection) sections.push(currentSection);
@@ -123,7 +190,23 @@ export default function AiReport() {
     });
   };
 
-  // Find best tea for report header
+  // 统一入口：自动检测 JSON 或 markdown
+  const renderReport = () => {
+    if (!report) return null;
+
+    // 尝试解析 JSON 格式报告
+    try {
+      const data = JSON.parse(report);
+      if (data && typeof data === 'object' && (data.sections || data.tags || data.picks)) {
+        return renderJsonReport(data);
+      }
+    } catch {
+      // 不是 JSON，按 markdown 处理
+    }
+
+    return renderMarkdownReport();
+  };
+
   const best = scoredTeas.length > 0
     ? scoredTeas.reduce((a, b) => calcTotalScore(a) > calcTotalScore(b) ? a : b)
     : null;
@@ -131,55 +214,19 @@ export default function AiReport() {
 
   return (
     <div>
-      {/* Report header (old version: header first, then score overview) */}
+      {/* 报告头部 */}
       {report && (
-        <div id="report-content">
-          <div className="ai-report-header">
-            <h3>🍵 AI 品鉴分析报告</h3>
-            <div className="ai-report-meta">
-              {reportMeta?.created_at && (
-                <span>📅 {reportMeta.created_at}</span>
-              )}
-              <span>🍃 {scoredTeas.length} 款茶样</span>
-              {best && (
-                <span>🏆 最高分 {bestScore}/{maxScore}（{best.name}）</span>
-              )}
-            </div>
+        <div className="ai-report-header">
+          <h3>🍵 AI 品鉴分析报告</h3>
+          <div className="ai-report-meta">
+            {reportMeta?.created_at && <span>📅 {reportMeta.created_at}</span>}
+            <span>🍃 {scoredTeas.length} 款茶样</span>
+            {best && <span>🏆 最高分 {bestScore}/{maxScore}（{best.name}）</span>}
           </div>
         </div>
       )}
 
-      {/* Score overview */}
-      {scoredTeas.length > 0 && (
-        <div className="ai-score-overview">
-          <div className="ai-score-overview-title">📊 评分速览</div>
-          {scoredTeas.map(tea => {
-            const total = calcTotalScore(tea);
-            return (
-              <div key={tea.id} className="ai-score-item">
-                <span className="ai-score-item-name">{tea.name}</span>
-                <div className="ai-score-item-bars">
-                  {dimensions.map(dim => {
-                    const score = tea.scores?.[dim.key] || 0;
-                    const barPct = (score / 5) * 100;
-                    return (
-                      <div key={dim.key} style={{ flex: 1, minWidth: 24, textAlign: 'center' }}>
-                        <div className="ai-score-dim-bar">
-                          <div className="ai-score-dim-fill" style={{ width: `${barPct}%` }} />
-                        </div>
-                        <div className="ai-score-dim-label">{dim.name}</div>
-                      </div>
-                    );
-                  })}
-                </div>
-                <span className="ai-score-item-total">{total}/{maxScore}</span>
-              </div>
-            );
-          })}
-        </div>
-      )}
-
-      {/* Stale warning */}
+      {/* 过时提示 */}
       {reportMeta?.stale && (
         <div className="ai-report-stale-hint">
           ⚠️ 评分数据已变更，报告可能过时
@@ -187,15 +234,13 @@ export default function AiReport() {
         </div>
       )}
 
-      {/* Report sections */}
+      {/* 报告内容 */}
       {report && renderReport()}
 
-      {/* Streaming indicator */}
-      {report && loading && (
-        <span className="ai-cursor"></span>
-      )}
+      {/* 流式光标 */}
+      {report && loading && <span className="ai-cursor"></span>}
 
-      {/* Loading state */}
+      {/* 加载动画 */}
       {loading && !report && (
         <div style={{ textAlign: 'center', padding: 30 }}>
           <div className="ai-thinking-dots">
@@ -207,12 +252,10 @@ export default function AiReport() {
         </div>
       )}
 
-      {/* Error */}
-      {error && (
-        <div className="status-msg err">{error}</div>
-      )}
+      {/* 错误 */}
+      {error && <div className="status-msg err">{error}</div>}
 
-      {/* Action buttons */}
+      {/* 操作按钮 */}
       <div className="ai-report-actions">
         <button
           className="ai-btn"

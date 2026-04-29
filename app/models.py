@@ -1,4 +1,4 @@
-from sqlalchemy import Boolean, Column, DateTime, Integer, String, Text, func
+from sqlalchemy import Boolean, Column, DateTime, ForeignKey, Integer, String, Text, func
 from sqlalchemy import JSON
 from sqlalchemy.orm import DeclarativeBase
 
@@ -36,6 +36,7 @@ class Report(Base):
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     content = Column(Text, nullable=False, default="")
+    recommend = Column(Text, nullable=False, default="")
     created_at = Column(DateTime, nullable=False, server_default=func.now())
     stale = Column(Boolean, nullable=False, default=False)
 
@@ -57,3 +58,14 @@ class ConfigItem(Base):
 
     key = Column(String(100), primary_key=True)
     value = Column(Text, nullable=False, default="")
+
+
+class AiFeedback(Base):
+    __tablename__ = "ai_feedback"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    message_id = Column(String(36), nullable=False)
+    feedback = Column(String(10), nullable=False)  # "up" 或 "down"
+    message_content = Column(Text, nullable=True)  # AI 回复文本摘要（前 200 字）
+    created_at = Column(DateTime, nullable=False, server_default=func.now())

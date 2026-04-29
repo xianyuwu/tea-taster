@@ -1,13 +1,37 @@
+import { useState, useCallback } from 'react';
 import { useTeaStore } from '../../stores/useTeaStore';
 import { calcTotalScore } from '../../utils/score';
+import { aiRecommend } from '../../api/ai';
+import { readSSEStream } from '../../hooks/useSSE';
+import RadarChart from './RadarChart';
 
-const MEDALS = ['🥇', '🥈', '🥉'];
 const RANK_CLASSES = ['gold', 'silver', 'bronze'];
 
 export default function RankList() {
   const teas = useTeaStore(s => s.teas);
   const dimensions = useTeaStore(s => s.dimensions);
   const teaFields = useTeaStore(s => s.teaFields);
+  const recommendText = useTeaStore(s => s.recommendText);
+  const setRecommendText = useTeaStore(s => s.setRecommendText);
+
+  const [recommendLoading, setRecommendLoading] = useState(false);
+
+  // 生成 AI 推荐理由
+  const handleRecommend = useCallback(async () => {
+    if (recommendLoading) return;
+    setRecommendLoading(true);
+    let fullText = '';
+    try {
+      const stream = await aiRecommend();
+      await readSSEStream(
+        stream,
+        (chunk) => { fullText += chunk; setRecommendText(fullText); },
+        () => { setRecommendLoading(false); }
+      );
+    } catch {
+      setRecommendLoading(false);
+    }
+  }, [recommendLoading, setRecommendText]);
 
   if (!teas || teas.length === 0) {
     return (
@@ -22,8 +46,6 @@ export default function RankList() {
   }));
   const ranked = [...withTotal].sort((a, b) => b.total - a.total);
 
-  // Dense ranking: same score = same rank, next rank doesn't skip
-  // e.g. 20,15,15,10 → 1,2,2,3
   const uniqueTotals = [...new Set(ranked.map(t => t.total))].sort((a, b) => b - a);
   const rankedWithRank = ranked.map(t => ({
     ...t,
@@ -44,7 +66,7 @@ export default function RankList() {
           return (
             <div key={tea.id} className={`rank-item ${rankClass}`}>
               <span className="rank-num">
-                {idx < 3 ? `${MEDALS[idx]} ${tea.rank}` : tea.rank}
+                {tea.rank}
               </span>
 
               {tea.photo ? (
@@ -90,22 +112,47 @@ export default function RankList() {
         })}
       </div>
 
-      {/* Recommendation box - after ranking list */}
+      {/* 推荐购买 */}
       {hasAnyScore && topTea && topTea.total > 0 && (
         <div className="recommend-box">
-          {topTea.photo ? (
-            <img src={`/data/photos/${topTea.photo}`} alt={topTea.name} />
-          ) : (
-            <span style={{ fontSize: '3rem', display: 'block', marginBottom: 8 }}>🏆</span>
-          )}
-          <div style={{ fontWeight: 700, color: '#d4380d', marginBottom: 4 }}>
-            🏆 推荐购买：<b>{topTea.name}</b>
+          {/* 左侧：照片 + 茶名 + 分数 + 推荐标签 */}
+          <div className="recommend-left">
+            {topTea.photo ? (
+              <img className="recommend-photo" src={`/data/photos/${topTea.photo}`} alt={topTea.name} />
+            ) : (
+              <span className="recommend-photo-placeholder">🍵</span>
+            )}
+            <div className="recommend-name">{topTea.name}</div>
+            <div className="recommend-score">{topTea.total}/{maxScore}</div>
+            <div className="recommend-badge">🏆 推荐购买</div>
           </div>
-          <div style={{ color: '#8a7060' }}>
-            总分 {topTea.total}/{maxScore}
+
+          {/* 右侧：AI 文字 + 按钮 */}
+          <div className="recommend-right">
+            {recommendText && (
+              <div className="recommend-text">{recommendText}</div>
+            )}
+            {recommendLoading && !recommendText && (
+              <div className="recommend-loading">
+                <span className="ai-thinking-dots"><span></span><span></span><span></span></span>
+              </div>
+            )}
+
+            <div className="recommend-btn-wrap">
+              <button
+                className="recommend-btn"
+                onClick={handleRecommend}
+                disabled={recommendLoading}
+              >
+                {recommendLoading ? '生成中...' : recommendText ? '🔄 重新生成推荐理由' : '✨ AI 生成推荐理由'}
+              </button>
+            </div>
           </div>
         </div>
       )}
+
+      {/* 雷达图 */}
+      <RadarChart dimensions={dimensions} teas={teas} />
     </div>
   );
 }

@@ -25,6 +25,11 @@ function buildTeaInfoText(teas, dimensions, teaFields) {
   return text;
 }
 
+// 给消息对象加上 _id
+function withId(msg) {
+  return { ...msg, _id: crypto.randomUUID() };
+}
+
 export const useChatStore = create((set, get) => ({
   history: [],
   initialized: false,
@@ -35,7 +40,8 @@ export const useChatStore = create((set, get) => ({
 
   initHistory: (messages) => {
     if (get().initialized) return;
-    set({ history: messages, initialized: true });
+    // 给上下文消息也加 _id
+    set({ history: messages.map(withId), initialized: true });
   },
 
   buildContextMessages: (teas, dimensions, teaFields, report) => {
@@ -62,7 +68,7 @@ export const useChatStore = create((set, get) => ({
   },
 
   addUserMessage: (content) => {
-    set({ history: [...get().history, { role: 'user', content }] });
+    set({ history: [...get().history, { role: 'user', content, _id: crypto.randomUUID() }] });
   },
 
   appendAssistant: (content) => {
@@ -70,10 +76,10 @@ export const useChatStore = create((set, get) => ({
     const last = history[history.length - 1];
     if (last?.role === 'assistant' && last._streaming) {
       set({
-        history: [...history.slice(0, -1), { role: 'assistant', content, _streaming: true }],
+        history: [...history.slice(0, -1), { ...last, content }],
       });
     } else {
-      set({ history: [...history, { role: 'assistant', content, _streaming: true }] });
+      set({ history: [...history, { role: 'assistant', content, _streaming: true, _id: crypto.randomUUID(), _feedback: null }] });
     }
   },
 
@@ -82,9 +88,58 @@ export const useChatStore = create((set, get) => ({
     const last = history[history.length - 1];
     if (last?.role === 'assistant') {
       set({
-        history: [...history.slice(0, -1), { role: 'assistant', content: last.content, _streaming: false }],
+        history: [...history.slice(0, -1), { ...last, _streaming: false }],
       });
     }
+  },
+
+  // 更新指定消息的反馈状态
+  setFeedback: (messageId, feedback) => {
+    const history = get().history.map(m =>
+      m._id === messageId ? { ...m, _feedback: feedback } : m
+    );
+    set({ history });
+  },
+
+  // 批量设置反馈（从后端加载时用）
+  loadFeedback: (feedbackList) => {
+    const feedbackMap = {};
+    for (const f of feedbackList) feedbackMap[f.message_id] = f.feedback;
+    const history = get().history.map(m => {
+      if (feedbackMap[m._id] !== undefined) {
+        return { ...m, _feedback: feedbackMap[m._id] };
+      }
+      return m;
+    });
+    set({ history });
+  },
+
+  // 重新生成：删除最后一条 assistant 消息，返回最后一条 user 消息内容
+  regenerate: () => {
+    const history = get().history;
+    // 找到最后一条非 context 的 assistant 消息
+    let lastAssistantIdx = -1;
+    for (let i = history.length - 1; i >= 0; i--) {
+      if (history[i].role === 'assistant' && !history[i]._context) {
+        lastAssistantIdx = i;
+        break;
+      }
+    }
+    if (lastAssistantIdx === -1) return null;
+
+    // 找到这条 assistant 消息之前的最后一条 user 消息
+    let userMsg = null;
+    for (let i = lastAssistantIdx - 1; i >= 0; i--) {
+      if (history[i].role === 'user' && !history[i]._context) {
+        userMsg = history[i].content;
+        break;
+      }
+    }
+
+    // 删除最后一条 assistant 消息
+    const newHistory = [...history.slice(0, lastAssistantIdx), ...history.slice(lastAssistantIdx + 1)];
+    set({ history: newHistory });
+    return userMsg;
   },
 
   reset: () => set({ history: [], initialized: false }),
