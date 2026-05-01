@@ -1,5 +1,8 @@
 import { create } from 'zustand';
 
+// genId() 仅在 HTTPS 下可用，本地 HTTP 开发环境不可用
+const genId = () => crypto.randomUUID?.() ?? `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
+
 function buildTeaInfoText(teas, dimensions, teaFields) {
   const scored = teas.filter(t => t.scores && Object.values(t.scores).some(v => v > 0));
   if (scored.length === 0) return '';
@@ -27,7 +30,7 @@ function buildTeaInfoText(teas, dimensions, teaFields) {
 
 // 给消息对象加上 _id
 function withId(msg) {
-  return { ...msg, _id: crypto.randomUUID() };
+  return { ...msg, _id: genId() };
 }
 
 export const useChatStore = create((set, get) => ({
@@ -68,7 +71,7 @@ export const useChatStore = create((set, get) => ({
   },
 
   addUserMessage: (content) => {
-    set({ history: [...get().history, { role: 'user', content, _id: crypto.randomUUID() }] });
+    set({ history: [...get().history, { role: 'user', content, _id: genId() }] });
   },
 
   appendAssistant: (content) => {
@@ -79,7 +82,7 @@ export const useChatStore = create((set, get) => ({
         history: [...history.slice(0, -1), { ...last, content }],
       });
     } else {
-      set({ history: [...history, { role: 'assistant', content, _streaming: true, _id: crypto.randomUUID(), _feedback: null }] });
+      set({ history: [...history, { role: 'assistant', content, _streaming: true, _id: genId(), _feedback: null }] });
     }
   },
 
